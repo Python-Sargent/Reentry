@@ -1,6 +1,6 @@
 # Reentry
 
-
+Reentry is a Space Survival game built for the Luanti 2024 Game Jam
 
 ## Installation
 
@@ -14,7 +14,9 @@ In the Luanti Engine:
 
 ### Manually
 
-- Unzip the archive, rename the folder to `Luanti Game Jam` and
+- Go to [Reentry Github](https://github.com/Python-Sargent/Reentry) and download the release.
+
+- Unzip the archive, rename the folder to `Reentry` and
 place it in `.../minetest/games/`
 
 - GNU/Linux: If you use a system-wide installation place it in `~/.minetest/games/`.
