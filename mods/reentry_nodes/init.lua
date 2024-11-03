@@ -2,21 +2,18 @@ minetest.register_node("reentry_nodes:solid_floor", {
 	description = "Spaceship Floor",
 	tiles = {"reentry_nodes_solid_floor.png"},
     groups = {mapnode = 1},
-    paramtype = "light",
 })
 
 minetest.register_node("reentry_nodes:solid_wall", {
 	description = "Spaceship Wall",
 	tiles = {"reentry_nodes_solid_wall.png"},
     groups = {mapnode = 1},
-    paramtype = "light",
 })
 
 minetest.register_node("reentry_nodes:solid_ceiling", {
 	description = "Spaceship Ceiling",
 	tiles = {"reentry_nodes_solid_ceiling.png"},
     groups = {mapnode = 1},
-    paramtype = "light",
 })
 
 minetest.register_node("reentry_nodes:solid_floor_light", {
@@ -24,7 +21,6 @@ minetest.register_node("reentry_nodes:solid_floor_light", {
 	tiles = {"reentry_nodes_solid_floor_light.png"},
     groups = {mapnode = 1},
     light_source = 14,
-    paramtype = "light",
 })
 
 minetest.register_node("reentry_nodes:solid_wall_light", {
@@ -32,7 +28,6 @@ minetest.register_node("reentry_nodes:solid_wall_light", {
 	tiles = {"reentry_nodes_solid_wall_light.png"},
     groups = {mapnode = 1},
     light_source = 14,
-    paramtype = "light",
 })
 
 minetest.register_node("reentry_nodes:solid_ceiling_light", {
@@ -40,7 +35,27 @@ minetest.register_node("reentry_nodes:solid_ceiling_light", {
 	tiles = {"reentry_nodes_solid_ceiling_light.png"},
     groups = {mapnode = 1},
     light_source = 14,
-    paramtype = "light",
+})
+
+minetest.register_node("reentry_nodes:solid_floor_light_off", {
+	description = "Spaceship Floor Light (off)",
+	tiles = {"reentry_nodes_solid_floor_light.png"},
+    groups = {mapnode = 1, not_in_creative_inventory=1},
+    drop = "reentry_nodes:solid_floor_light",
+})
+
+minetest.register_node("reentry_nodes:solid_wall_light_off", {
+	description = "Spaceship Wall Light (off)",
+	tiles = {"reentry_nodes_solid_wall_light.png"},
+    groups = {mapnode = 1, not_in_creative_inventory=1},
+    drop = "reentry_nodes:solid_wall_light",
+})
+
+minetest.register_node("reentry_nodes:solid_ceiling_light_off", {
+	description = "Spaceship Ceiling Light (off)",
+	tiles = {"reentry_nodes_solid_ceiling_light.png"},
+    groups = {mapnode = 1, not_in_creative_inventory=1},
+    drop = "reentry_nodes:solid_ceiling_light",
 })
 
 minetest.register_chatcommand("setblock", {
