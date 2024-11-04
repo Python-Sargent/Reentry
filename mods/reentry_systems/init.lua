@@ -1,7 +1,7 @@
 reentry_systems = {}
 
-reentry_systems.lights_off = function()
-    local nodepositions, nodecounts = core.find_nodes_in_area(vector.new(64, 64, 64), vector.new(-64, -64, -64), {
+reentry_systems.lights_off = function(pos1, pos2)
+    local nodepositions, nodecounts = core.find_nodes_in_area(pos1, pos2, {
         "reentry_nodes:solid_floor_light",
         "reentry_nodes:solid_wall_light",
         "reentry_nodes:solid_ceiling_light",
@@ -19,11 +19,10 @@ reentry_systems.lights_off = function()
             minetest.set_node(pos, {name="reentry_nodes:solid_ceiling_light_off"})
         end
     end
-
 end
 
-reentry_systems.lights_on = function()
-    local nodepositions, nodecounts = core.find_nodes_in_area(vector.new(64, 64, 64), vector.new(-64, -64, -64), {
+reentry_systems.lights_on = function(pos1, pos2)
+    local nodepositions, nodecounts = core.find_nodes_in_area(pos1, pos2, {
         "reentry_nodes:solid_floor_light_off",
         "reentry_nodes:solid_wall_light_off",
         "reentry_nodes:solid_ceiling_light_off",
@@ -41,7 +40,6 @@ reentry_systems.lights_on = function()
             minetest.set_node(pos, {name="reentry_nodes:solid_ceiling_light"})
         end
     end
-
 end
 
 minetest.register_chatcommand("lights", {
@@ -49,9 +47,9 @@ minetest.register_chatcommand("lights", {
     privs={interact=true, server=true},
 	func = function(name, param)
 		if param == "off" then
-            reentry_systems.lights_off()
+            reentry_systems.lights_off(vector.new(64, 64, 64), vector.new(-64, -64, -64))
         elseif param == "on" then
-            reentry_systems.lights_on()
+            reentry_systems.lights_on(vector.new(64, 64, 64), vector.new(-64, -64, -64))
         else
            minetest.chat_send_player(name, "Missing paramater, Usage: \n/lights on (turns lights on)\n/lights off (turns lights off)")
         end
