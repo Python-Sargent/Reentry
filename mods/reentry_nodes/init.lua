@@ -131,7 +131,8 @@ minetest.register_node("reentry_nodes:solid_floor_trigger", {
 		meta:set_string("trigger", "none")
 	end,
 	on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
-		minetest.show_formspec(clicker:get_player_name(), "trigger_" .. minetest.pos_to_string(pos, 0), reentry_nodes.create_trigger_formspec(pos))
+		local privs = minetest.get_player_privs(clicker:get_player_name())
+		if privs.server then minetest.show_formspec(clicker:get_player_name(), "trigger_" .. minetest.pos_to_string(pos, 0), reentry_nodes.create_trigger_formspec(pos)) end
 	end,
 	on_timer = function(pos, elapsed)
 		local meta = minetest.get_meta(pos)
