@@ -88,9 +88,17 @@ local function checkmark( checked )
 	end
 end
 
-reentry_nodes.trigger_run = function(name, pos)
+reentry_nodes.trigger_run = function(name, params)
 	if name == "lights_off" then
-		reentry_systems.lights_off(vector.new(64, 64, 64), vector.new(-64, -64, -64))
+		reentry_systems.lights_off(vector.add(params.pos, vector.new(64, 64, 64)), vector.add(params.pos, vector.new(-64, -64, -64)))
+	elseif name == "lights_on" then
+		reentry_systems.lights_on(vector.add(params.pos, vector.new(64, 64, 64)), vector.add(params.pos, vector.new(-64, -64, -64)))
+	elseif name == "suffocation_on" then
+		reentry_systems.suffocate(params.player)
+	elseif name == "suffocation_off" then
+		reentry_systems.suffocate_end(params.player)
+	elseif name == "storyline_next" then
+		reentry_story.next(params.player)
 	end
 end
 
@@ -114,8 +122,12 @@ reentry_nodes.create_trigger_formspec = function(pos)
 		"field[3.5,0.5;3,1;posmax;Position Max;" .. reentry_nodes.meta_to_strpos(meta, "max") .. "]" ..
 		"image_button[0.5,1;1,1;" .. checkmark(meta:get_int("active")) .. ";active;Is Active]" ..
 		"button[2.25,1;2,1;submit;Update]" ..
-		"label[0.5,2;Trigger Actions:]" ..
-		"button[0.5,3;2,1;lights_off;Lights Off]"
+		"field[4,2.5;1,1;delay;Delay;0.5]" ..
+		"label[0.5,2;Trigger Actions]" ..
+		"button[0.5,2.5;2,1;lights_off;Lights Off]" ..
+		"button[3,2.5;2,1;lights_on;Lights On]" ..
+		"button[0.5,3.5;2,1;suffocate;Suffocate]" ..
+		"button[3,3.5;2,1;give_oxygen;Give Oxygen]"
 	return formspec
 end
 
@@ -140,7 +152,7 @@ minetest.register_node("reentry_nodes:solid_floor_trigger", {
 		local posmax = vector.add(pos, reentry_nodes.meta_to_vector3(meta, "max"))
 		local activated = reentry_nodes.trigger_check(posmin, posmax, "player")
 		if activated ~= nil and meta:get_string("trigger") ~= "none" then
-			reentry_nodes.trigger_run(meta:get_string("trigger"), pos)
+			reentry_nodes.trigger_run(meta:get_string("trigger"), {pos = pos, player = activated})
 			return true
 		end
 		return true
@@ -169,6 +181,12 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
 
 	if fields.lights_off then
 		meta:set_string("trigger", "lights_off")
+	elseif fields.lights_on then
+		meta:set_string("trigger", "lights_on")
+	elseif fields.suffocate then
+		meta:set_string("trigger", "suffocation_on")
+	elseif fields.give_oxygen then
+		meta:set_string("trigger", "suffocation_off")
 	end
 
 	if fields.submit then
