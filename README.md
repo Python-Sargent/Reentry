@@ -1,3 +1,5 @@
+[![ContentDB](https://content.luanti.org/packages/SuperStarSonic/reentry/shields/title/)](https://content.luanti.org/packages/SuperStarSonic/reentry/)
+
 # Reentry
 
 Reentry is a Space Survival game built for the Luanti 2024 Game Jam

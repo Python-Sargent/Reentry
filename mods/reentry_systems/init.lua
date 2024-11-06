@@ -42,12 +42,12 @@ reentry_systems.lights_on = function(pos1, pos2)
     end
 end
 
-reentry_systems.suffocate = function(player)
+reentry_systems.suffocate = function(player, _)
     player:set_flags({breathing=false})
     minetest.log("suffocating " .. player:get_player_name())
 end
 
-reentry_systems.suffocate_end = function(player)
+reentry_systems.suffocate_end = function(player, _)
     player:set_flags({breathing=true})
     minetest.log("giving air to " .. player:get_player_name())
 end
