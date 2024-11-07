@@ -78,18 +78,31 @@ minetest.register_node("reentry_nodes:door_bottom", {
 		"reentry_nodes_door.png",
 		"reentry_nodes_door_side.png"
 	},
+	selection_box = {
+		type = "fixed",
+		fixed = {1.5/32, 1.5, 0.5, -1.5/32, -0.5, -0.5},
+	},
+	collision_box = {
+		type = "fixed",
+		fixed = {1.5/32, 1.5, 0.5, -1.5/32, -0.5, -0.5},
+	},
 	use_texture_alpha = "blend",
 	paramtype = "light",
 	paramtype2 = "4dir",
 	sunlight_propagates = true,
 	groups = {mapnode = 1},
 	after_place_node = function(pos, placer, itemstack, pointed_thing)
+		minetest.rotate_node(itemstack, placer, pointed_thing)
 		if minetest.get_node(vector.offset(pos, 0, 1, 0)).name ~= "air" then
 			return false
 		end
 	end,
+	on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
+		minetest.swap_node(pos, {name="reentry_nodes:door_bottom_open"})
+		minetest.swap_node(vector.offset(pos, 0, 1, 0), {name = "reentry_nodes:door_top_open"})
+	end,
 	on_construct = function(pos)
-		minetest.set_node(vector.offset(pos, 0, 1, 0), {name = "reentry_nodes:door_top", param2 = minetest.get_node(pos).param2})
+		minetest.set_node(vector.offset(pos, 0, 1, 0), {name = "reentry_nodes:door_top"})
 	end,
 	on_destruct = function(pos)
 		minetest.set_node(vector.offset(pos, 0, 1, 0), {name = "air"})
@@ -98,17 +111,68 @@ minetest.register_node("reentry_nodes:door_bottom", {
 
 minetest.register_node("reentry_nodes:door_top", {
 	description = "Door (top)",
+	drawtype = "airlike",
+	paramtype = "light",
+	sunlight_propagates = true,
+	walkable = true,
+	pointable = false,
+	diggable = false,
+	buildable_to = false,
+	floodable = false,
+	drop = "",
+	collision_box = {
+		type = "fixed",
+		fixed = {1.5/32, 1.5, 0.5, -1.5/32, -0.5, -0.5},
+	},
+	groups = {mapnode = 1, not_in_creative_inventory = 1},
+	after_place_node = function(pos, placer, itemstack, pointed_thing)
+		minetest.rotate_node(itemstack, placer, pointed_thing)
+	end,
+})
+
+minetest.register_node("reentry_nodes:door_bottom_open", {
+	description = "Door (open)",
 	drawtype = "mesh",
-	mesh = "door_top.obj",
+	mesh = "door_open.obj",
 	tiles = {
 		"reentry_nodes_door.png",
 		"reentry_nodes_door_side.png"
+	},
+	selection_box = {
+		type = "fixed",
+		fixed = {1.5/32, 1.5, 0.5, -1.5/32, -0.5, -0.5},
 	},
 	use_texture_alpha = "blend",
 	paramtype = "light",
 	paramtype2 = "4dir",
 	sunlight_propagates = true,
+	diggable = false,
+	walkable = false,
+	groups = {mapnode = 1, not_in_creative_inventory=1},
+	after_place_node = function(pos, placer, itemstack, pointed_thing)
+		minetest.rotate_node(itemstack, placer, pointed_thing)
+	end,
+	on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
+		minetest.swap_node(pos, {name="reentry_nodes:door_bottom"})
+		minetest.swap_node(vector.offset(pos, 0, 1, 0), {name = "reentry_nodes:door_top"})
+	end,
+})
+
+minetest.register_node("reentry_nodes:door_top_open", {
+	description = "Door (top, open)",
+	drawtype = "airlike",
+	paramtype = "light",
+	sunlight_propagates = true,
+	walkable = false,
+	pointable = false,
+	diggable = false,
+	buildable_to = false,
+	floodable = false,
+	drop = "",
 	groups = {mapnode = 1, not_in_creative_inventory = 1},
+	after_place_node = function(pos, placer, itemstack, pointed_thing)
+		minetest.rotate_node(itemstack, placer, pointed_thing)
+	end,
 })
 
 minetest.register_node("reentry_nodes:relay_disc", {
@@ -225,17 +289,28 @@ end
 
 reentry_nodes.create_trigger_formspec = function(pos)
 	local meta = minetest.get_meta(pos)
-	local formspec = "size[6.5,5]" ..
-		"field[0.5,0.5;3,1;posmin;Position Min;" .. reentry_nodes.meta_to_strpos(meta, "min") .. "]" ..
-		"field[3.5,0.5;3,1;posmax;Position Max;" .. reentry_nodes.meta_to_strpos(meta, "max") .. "]" ..
-		"image_button[0.5,1;1,1;" .. checkmark(meta:get_int("active")) .. ";active;Is Active]" ..
-		"button[2.25,1;2,1;submit;Update]" ..
-		"field[5,1.5;1,1;delay;Delay;0.5]" ..
+	local formspec = "formspec_version[6]" ..
+		"size[6.5,5]" ..
+		"field[0.2,0.5;3,0.5;posmin;Position Min;" .. reentry_nodes.meta_to_strpos(meta, "min") .. "]" ..
+		"field[3.3,0.5;3,0.5;posmax;Position Max;" .. reentry_nodes.meta_to_strpos(meta, "max") .. "]" ..
+		"image_button[0.2,1;1,1;" .. checkmark(meta:get_int("active")) .. ";active;Active;false;true]" ..
+		"button[3.3,1.1;3,0.8;submit;Update]" ..
+		"field[1.4,1.4;1.8,0.5;delay;Timer Delay;0.5]" ..
+		"field[0.3,2.6;3,0.8;trigger;Trigger Name;" .. meta:get_string("trigger") .. "]" ..
+		"field[0.3,4;3,0.8;param1;Param 1;" .. meta:get_string("parameter1") .. "]" ..
+		"field[3.4,4;3,0.8;param2;Param 2;" .. meta:get_string("parameter2") .. "]" ..
+		"button[3.4,2.6;3,0.8;submit2;Update]"
+		--"size[6.5,5]" ..
+		--"field[0.5,0.5;3,1;posmin;Position Min;" .. reentry_nodes.meta_to_strpos(meta, "min") .. "]" ..
+		--"field[3.5,0.5;3,1;posmax;Position Max;" .. reentry_nodes.meta_to_strpos(meta, "max") .. "]" ..
+		--"image_button[0.5,1;1,1;" .. checkmark(meta:get_int("active")) .. ";active;Is Active]" ..
+		--"button[2.25,1;2,1;submit;Update]" ..
+		--"field[5,1.5;1,1;delay;Delay;0.5]" ..
 		--"label[0.5,2;Trigger Actions]" ..
-		"field[0.5,2.5;3,1;trigger;Trigger;" .. meta:get_string("trigger") .. "]" ..
-		"field[0.5,3.5;3,1;param1;Param 1;" .. meta:get_string("parameter1") .. "]" ..
-		"field[3.5,3.5;3,1;param2;Param 2;" .. meta:get_string("parameter2") .. "]" ..
-		"button[3.5,2;3,1;submit2;Update]"
+		--"field[0.5,2.5;3,1;trigger;Trigger;" .. meta:get_string("trigger") .. "]" ..
+		--"field[0.5,3.5;3,1;param1;Param 1;" .. meta:get_string("parameter1") .. "]" ..
+		--"field[3.5,3.5;3,1;param2;Param 2;" .. meta:get_string("parameter2") .. "]" ..
+		--"button[3.5,2;3,1;submit2;Update]"
 	return formspec
 end
 
