@@ -183,23 +183,31 @@ minetest.register_node("reentry_nodes:relay_disc", {
 
 
 reentry_nodes.vector3_to_meta = function(vec3, meta, suffix)
-	meta:set_int("x" .. suffix, vec3.x)
-	meta:set_int("y" .. suffix, vec3.y)
-	meta:set_int("z" .. suffix, vec3.z)
+	meta:set_float("x" .. suffix, vec3.x)
+	meta:set_float("y" .. suffix, vec3.y)
+	meta:set_float("z" .. suffix, vec3.z)
 end
 
 reentry_nodes.meta_to_strpos = function(meta, suffix)
-	local x = meta:get_int("x" .. suffix)
+	local x = meta:get_float("x" .. suffix)
 	local y = meta:get_int("y" .. suffix)
 	local z = meta:get_int("z" .. suffix)
 	return x .. ", " .. y .. ", " .. z
 end
 
 reentry_nodes.meta_to_vector3 = function(meta, suffix)
-	local x = meta:get_int("x" .. suffix)
-	local y = meta:get_int("y" .. suffix)
-	local z = meta:get_int("z" .. suffix)
+	local x = meta:get_float("x" .. suffix)
+	local y = meta:get_float("y" .. suffix)
+	local z = meta:get_float("z" .. suffix)
 	return vector.new(x, y, z)
+end
+
+reentry_nodes.into_to_boolstr = function(intbool)
+	if intbool == 1 then
+		return "true"
+	else
+		return "false" -- defaults false
+	end
 end
 
 local function checkmark( checked )
@@ -268,6 +276,7 @@ reentry_nodes.populate_params = function(name, params, trigger)
 end
 
 reentry_nodes.trigger_run = function(name, params)
+	if name == "none" then minetest.log("Trigger not defined in trigger node at " .. minetest.pos_to_string(params.pos, 0)) end
 	local trigger = reentry_nodes.triggers[name]
 	if trigger ~= nil then
 		trigger.func(reentry_nodes.populate_params(name, params, trigger))
@@ -291,15 +300,27 @@ reentry_nodes.create_trigger_formspec = function(pos)
 	local meta = minetest.get_meta(pos)
 	local formspec = "formspec_version[6]" ..
 		"size[6.5,5]" ..
-		"field[0.2,0.5;3,0.5;posmin;Position Min;" .. reentry_nodes.meta_to_strpos(meta, "min") .. "]" ..
-		"field[3.3,0.5;3,0.5;posmax;Position Max;" .. reentry_nodes.meta_to_strpos(meta, "max") .. "]" ..
-		"image_button[0.2,1;1,1;" .. checkmark(meta:get_int("active")) .. ";active;Active;false;true]" ..
-		"button[3.3,1.1;3,0.8;submit;Update]" ..
-		"field[1.4,1.4;1.8,0.5;delay;Timer Delay;0.5]" ..
-		"field[0.3,2.6;3,0.8;trigger;Trigger Name;" .. meta:get_string("trigger") .. "]" ..
-		"field[0.3,4;3,0.8;param1;Param 1;" .. meta:get_string("parameter1") .. "]" ..
-		"field[3.4,4;3,0.8;param2;Param 2;" .. meta:get_string("parameter2") .. "]" ..
-		"button[3.4,2.6;3,0.8;submit2;Update]"
+		"field[0.2,0.4;3,0.5;posmin;Position Min;" .. reentry_nodes.meta_to_strpos(meta, "min") .. "]" ..
+		"field[3.3,0.4;3,0.5;posmax;Position Max;" .. reentry_nodes.meta_to_strpos(meta, "max") .. "]" ..
+		"image_button[0.2,0.9;1,1;" .. checkmark(meta:get_int("active")) .. ";active;Active;false;true]" ..
+		"button[3.3,1;3,0.8;submit;Update]" ..
+		"field[1.4,1.3;1.8,0.5;delay;Timer Delay;0.5]" ..
+		"field[0.3,3.3;3,0.5;trigger;Trigger Name;" .. meta:get_string("trigger") .. "]" ..
+		"field[0.3,4.3;3,0.5;param1;Param 1;" .. meta:get_string("parameter1") .. "]" ..
+		"field[3.4,4.3;3,0.5;param2;Param 2;" .. meta:get_string("parameter2") .. "]" ..
+		"button[3.4,3;3,0.8;submit2;Update]" ..
+		"field[0.3,2.3;0.9,0.5;keep_active;Keep Active;" .. reentry_nodes.into_to_boolstr(meta:get_int("keep_active")) .. "]" ..
+		"field[3.4,2.4;3,0.4;reset_delay;Reset Delay;" .. meta:get_int("reset_delay") .. "]"
+		--"size[6.5,5]" ..
+		--"field[0.2,0.5;3,0.5;posmin;Position Min;" .. reentry_nodes.meta_to_strpos(meta, "min") .. "]" ..
+		--"field[3.3,0.5;3,0.5;posmax;Position Max;" .. reentry_nodes.meta_to_strpos(meta, "max") .. "]" ..
+		--"image_button[0.2,1;1,1;" .. checkmark(meta:get_int("active")) .. ";active;Active;false;true]" ..
+		--"button[3.3,1.1;3,0.8;submit;Update]" ..
+		--"field[1.4,1.4;1.8,0.5;delay;Timer Delay;0.5]" ..
+		--"field[0.3,2.6;3,0.8;trigger;Trigger Name;" .. meta:get_string("trigger") .. "]" ..
+		--"field[0.3,4;3,0.8;param1;Param 1;" .. meta:get_string("parameter1") .. "]" ..
+		--"field[3.4,4;3,0.8;param2;Param 2;" .. meta:get_string("parameter2") .. "]" ..
+		--"button[3.4,2.6;3,0.8;submit2;Update]"
 		--"size[6.5,5]" ..
 		--"field[0.5,0.5;3,1;posmin;Position Min;" .. reentry_nodes.meta_to_strpos(meta, "min") .. "]" ..
 		--"field[3.5,0.5;3,1;posmax;Position Max;" .. reentry_nodes.meta_to_strpos(meta, "max") .. "]" ..
@@ -322,10 +343,13 @@ minetest.register_node("reentry_nodes:solid_floor_trigger", {
 		local meta = minetest.get_meta(pos)
 		reentry_nodes.vector3_to_meta(vector.new(0, 0, 0), meta, "min")
 		reentry_nodes.vector3_to_meta(vector.new(0, 0, 0), meta, "max")
-		meta:set_int("active", 0)
+		meta:set_float("timer_delay", 0.5)
+		meta:set_float("reset_delay", 5)
+		meta:set_int("active", 0) -- used as boolean just like C
+		meta:set_int("keep_active", 0) -- ditto
 		meta:set_string("trigger", "none")
-		meta:set_string("parameter1", "none")
-		meta:set_string("parameter2", "none")
+		meta:set_string("parameter1", "")
+		meta:set_string("parameter2", "")
 	end,
 	on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
 		local privs = minetest.get_player_privs(clicker:get_player_name())
@@ -337,21 +361,20 @@ minetest.register_node("reentry_nodes:solid_floor_trigger", {
 		local posmax = vector.add(pos, reentry_nodes.meta_to_vector3(meta, "max"))
 		local activated = reentry_nodes.trigger_check(posmin, posmax, "player")
 		if activated ~= nil and meta:get_string("trigger") ~= "none" and activated:is_player() then
-			reentry_nodes.trigger_run(meta:get_string("trigger"), {pos = pos, player = activated, meta = meta, param1 = meta:get_string("parameter1"), param2 = meta:get_string("parameter2")})
-			meta:set_int("active", 0)
-			return false
+			if meta:get_int("active") == 1 then reentry_nodes.trigger_run(meta:get_string("trigger"), {pos = pos, player = activated, meta = meta, param1 = meta:get_string("parameter1"), param2 = meta:get_string("parameter2")}) end
+			if meta:get_int("keep_active") == 0 then meta:set_int("active", 0) end -- if keep_active disabled, deactivate trigger
 		end
 		return true
 	end,
 })
 
 minetest.register_on_player_receive_fields(function(player, formname, fields)
-	local form = formname:split("_")
+	local form = formname:split("_") -- split the trigger, ex. "trigger_(0,0,0)" to "trigger", "(0,0,0)"
 	if form[1] ~= "trigger" then
 		return
 	end
 	
-	local pos = vector.new(minetest.string_to_pos(form[2]))
+	local pos = vector.new(minetest.string_to_pos(form[2])) -- compile positional data passed through formname back into pos
 	local meta = minetest.get_meta(pos)
 	if fields.active then
 		local active = meta:get_int("active")
@@ -361,7 +384,7 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
 			timer:stop()
 		else
 			meta:set_int("active", 1)
-			timer:start(0.5)
+			timer:start(meta:get_int("timer_delay"))
 		end
 	end
 	if fields.submit2 then
@@ -372,6 +395,14 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
 		end
 		meta:set_string("parameter1", fields.param1)
 		meta:set_string("parameter2", fields.param2)
+		meta:set_float("reset_delay", fields.reset_delay)
+		if fields.keep_active then
+			if fields.keep_active == "true" then
+				meta:set_int("keep_active", 1)
+			elseif fields.keep_active == "false" then
+				meta:set_int("keep_active", 0)
+			end
+		end
 	end
 
 	if fields.submit then
