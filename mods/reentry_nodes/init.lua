@@ -322,64 +322,89 @@ reentry_nodes.create_trigger_formspec = function(pos)
 		"field[0.3,4.3;3,0.5;param1;Param 1;" .. meta:get_string("parameter1") .. "]" ..
 		"field[3.4,4.3;3,0.5;param2;Param 2;" .. meta:get_string("parameter2") .. "]" ..
 		"button[3.4,3;3,0.8;submit2;Update]" ..
-		"field[0.3,2.3;0.9,0.5;keep_active;Keep Active;" .. reentry_nodes.into_to_boolstr(meta:get_int("keep_active")) .. "]" ..
-		"field[3.4,2.4;3,0.4;reset_delay;Reset Delay;" .. meta:get_int("reset_delay") .. "]"
-		--"size[6.5,5]" ..
-		--"field[0.2,0.5;3,0.5;posmin;Position Min;" .. reentry_nodes.meta_to_strpos(meta, "min") .. "]" ..
-		--"field[3.3,0.5;3,0.5;posmax;Position Max;" .. reentry_nodes.meta_to_strpos(meta, "max") .. "]" ..
-		--"image_button[0.2,1;1,1;" .. checkmark(meta:get_int("active")) .. ";active;Active;false;true]" ..
-		--"button[3.3,1.1;3,0.8;submit;Update]" ..
-		--"field[1.4,1.4;1.8,0.5;delay;Timer Delay;0.5]" ..
-		--"field[0.3,2.6;3,0.8;trigger;Trigger Name;" .. meta:get_string("trigger") .. "]" ..
-		--"field[0.3,4;3,0.8;param1;Param 1;" .. meta:get_string("parameter1") .. "]" ..
-		--"field[3.4,4;3,0.8;param2;Param 2;" .. meta:get_string("parameter2") .. "]" ..
-		--"button[3.4,2.6;3,0.8;submit2;Update]"
-		--"size[6.5,5]" ..
-		--"field[0.5,0.5;3,1;posmin;Position Min;" .. reentry_nodes.meta_to_strpos(meta, "min") .. "]" ..
-		--"field[3.5,0.5;3,1;posmax;Position Max;" .. reentry_nodes.meta_to_strpos(meta, "max") .. "]" ..
-		--"image_button[0.5,1;1,1;" .. checkmark(meta:get_int("active")) .. ";active;Is Active]" ..
-		--"button[2.25,1;2,1;submit;Update]" ..
-		--"field[5,1.5;1,1;delay;Delay;0.5]" ..
-		--"label[0.5,2;Trigger Actions]" ..
-		--"field[0.5,2.5;3,1;trigger;Trigger;" .. meta:get_string("trigger") .. "]" ..
-		--"field[0.5,3.5;3,1;param1;Param 1;" .. meta:get_string("parameter1") .. "]" ..
-		--"field[3.5,3.5;3,1;param2;Param 2;" .. meta:get_string("parameter2") .. "]" ..
-		--"button[3.5,2;3,1;submit2;Update]"
+		"field[0.3,2.3;0.9,0.5;keep_active;Keep Active;" .. reentry_nodes.into_to_boolstr(meta:get_int("keep_active")) .. "]"
+		--"field[3.4,2.4;3,0.4;reset_delay;Reset Delay;" .. meta:get_int("reset_delay") .. "]"
 	return formspec
 end
 
-minetest.register_node("reentry_nodes:solid_floor_trigger", {
+reentry_nodes.trigger_on_construct = function(pos)
+	local meta = minetest.get_meta(pos)
+	reentry_nodes.vector3_to_meta(vector.new(0, 0, 0), meta, "min")
+	reentry_nodes.vector3_to_meta(vector.new(0, 0, 0), meta, "max")
+	meta:set_float("timer_delay", 0.5)
+	meta:set_float("reset_delay", 5)
+	meta:set_int("active", 0) -- used as boolean just like C
+	meta:set_int("keep_active", 0) -- ditto
+	meta:set_string("trigger", "none")
+	meta:set_string("parameter1", "")
+	meta:set_string("parameter2", "")
+end
+
+reentry_nodes.trigger_on_rightlick = function(pos, node, clicker, itemstack, pointed_thing)
+	local privs = minetest.get_player_privs(clicker:get_player_name())
+	if privs.server then minetest.show_formspec(clicker:get_player_name(), "trigger_" .. minetest.pos_to_string(pos, 0), reentry_nodes.create_trigger_formspec(pos)) end
+end
+
+reentry_nodes.trigger_on_timer = function(pos, elapsed)
+	local meta = minetest.get_meta(pos)
+	local posmin = vector.add(pos, reentry_nodes.meta_to_vector3(meta, "min"))
+	local posmax = vector.add(pos, reentry_nodes.meta_to_vector3(meta, "max"))
+	local activated = reentry_nodes.trigger_check(posmin, posmax, "player")
+	if activated ~= nil and meta:get_string("trigger") ~= "none" and activated:is_player() then
+		if meta:get_int("active") == 1 then reentry_nodes.trigger_run(meta:get_string("trigger"), {pos = pos, player = activated, meta = meta, param1 = meta:get_string("parameter1"), param2 = meta:get_string("parameter2")}) end
+		if meta:get_int("keep_active") == 0 then meta:set_int("active", 0) end -- if keep_active disabled, deactivate trigger
+	end
+	return true
+end
+
+reentry_nodes.register_trigger_node = function(def)
+	minetest.register_node("reentry_nodes:" .. def.type .. "_trigger", {
+		description = def.desc,
+		tiles = {"reentry_nodes_" .. def.type .. "_trigger.png"},
+		groups = {mapnode = 1, trigger=1},
+		on_construct = function(...)
+			reentry_nodes.trigger_on_construct(...)
+		end,
+		on_rightclick = function(...)
+			reentry_nodes.trigger_on_rightlick(...)
+		end,
+		on_timer = function(...)
+			reentry_nodes.trigger_on_timer(...)
+		end,
+	})
+end
+
+reentry_nodes.register_trigger_node({
+	desc = "Spaceship Floor Trigger",
+	type = "solid_floor",
+})
+
+reentry_nodes.register_trigger_node({
+	desc = "Spaceship Wall Trigger",
+	type = "solid_wall",
+})
+
+reentry_nodes.register_trigger_node({
+	desc = "Spaceship Ceiling Trigger",
+	type = "solid_ceiling",
+})
+
+--[[
+	minetest.register_node("reentry_nodes:solid_floor_trigger", {
 	description = "Spaceship Floor Trigger",
 	tiles = {"reentry_nodes_solid_floor_trigger.png"},
     groups = {mapnode = 1, trigger=1},
-	on_construct = function(pos)
-		local meta = minetest.get_meta(pos)
-		reentry_nodes.vector3_to_meta(vector.new(0, 0, 0), meta, "min")
-		reentry_nodes.vector3_to_meta(vector.new(0, 0, 0), meta, "max")
-		meta:set_float("timer_delay", 0.5)
-		meta:set_float("reset_delay", 5)
-		meta:set_int("active", 0) -- used as boolean just like C
-		meta:set_int("keep_active", 0) -- ditto
-		meta:set_string("trigger", "none")
-		meta:set_string("parameter1", "")
-		meta:set_string("parameter2", "")
+	on_construct = function(...)
+		reentry_nodes.trigger_on_construct(...)
 	end,
-	on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
-		local privs = minetest.get_player_privs(clicker:get_player_name())
-		if privs.server then minetest.show_formspec(clicker:get_player_name(), "trigger_" .. minetest.pos_to_string(pos, 0), reentry_nodes.create_trigger_formspec(pos)) end
+	on_rightclick = function(...)
+		reentry_nodes.trigger_on_rightlick(...)
 	end,
-	on_timer = function(pos, elapsed)
-		local meta = minetest.get_meta(pos)
-		local posmin = vector.add(pos, reentry_nodes.meta_to_vector3(meta, "min"))
-		local posmax = vector.add(pos, reentry_nodes.meta_to_vector3(meta, "max"))
-		local activated = reentry_nodes.trigger_check(posmin, posmax, "player")
-		if activated ~= nil and meta:get_string("trigger") ~= "none" and activated:is_player() then
-			if meta:get_int("active") == 1 then reentry_nodes.trigger_run(meta:get_string("trigger"), {pos = pos, player = activated, meta = meta, param1 = meta:get_string("parameter1"), param2 = meta:get_string("parameter2")}) end
-			if meta:get_int("keep_active") == 0 then meta:set_int("active", 0) end -- if keep_active disabled, deactivate trigger
-		end
-		return true
+	on_timer = function(...)
+		reentry_nodes.trigger_on_timer(...)
 	end,
 })
+]]
 
 minetest.register_on_player_receive_fields(function(player, formname, fields)
 	local form = formname:split("_") -- split the trigger, ex. "trigger_(0,0,0)" to "trigger", "(0,0,0)"
@@ -435,8 +460,10 @@ end)
 
 reentry_nodes.start_triggers = function(pos)
 	local nodepositions, nodecounts = core.find_nodes_in_area(vector.offset(pos, 64, 64, 64), vector.offset(pos, -64, -64, -64), {
-        "reentry_nodes:solid_floor_trigger"
-    }, false)
+		"reentry_nodes:solid_floor_trigger",
+		"reentry_nodes:solid_wall_trigger",
+		"reentry_nodes:solid_ceiling_trigger",
+	}, false)
 
     for i, pos in pairs(nodepositions) do
 		local meta = minetest.get_meta(pos)
