@@ -70,6 +70,19 @@ minetest.register_node("reentry_nodes:window", {
 	groups = {mapnode = 1},
 })
 
+minetest.register_node("reentry_nodes:plasma", {
+	description = "Plasma",
+	drawtype = "glasslike",
+	inventory_image = "reentry_nodes_plasma_inv.png",
+	tiles = {"reentry_nodes_plasma.png"}, --^[brighten
+	use_texture_alpha = "blend",
+	paramtype = "light",
+	walkable = false,
+	sunlight_propagates = true,
+	groups = {mapnode = 1},
+	light_source = 14,
+})
+
 minetest.register_node("reentry_nodes:door_bottom", {
 	description = "Door",
 	drawtype = "mesh",
@@ -419,6 +432,32 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
 		minetest.show_formspec(player:get_player_name(), "trigger_" .. minetest.pos_to_string(pos, 0), reentry_nodes.create_trigger_formspec(pos))
 	end
 end)
+
+reentry_nodes.start_triggers = function(pos)
+	local nodepositions, nodecounts = core.find_nodes_in_area(vector.offset(pos, 64, 64, 64), vector.offset(pos, -64, -64, -64), {
+        "reentry_nodes:solid_floor_trigger"
+    }, false)
+
+    for i, pos in pairs(nodepositions) do
+		local meta = minetest.get_meta(pos)
+        local timer = minetest.get_node_timer(pos)
+		timer:start(meta:get_int("timer_delay"))
+		meta:set_int("keep_active", 1)
+    end
+end
+
+minetest.register_chatcommand("start_triggers", {
+	description = "Activate all triggers",
+	privs = {interact=1},
+	func = function(name)
+		local player = minetest.get_player_by_name(name)
+		if player then
+			reentry_nodes.start_triggers(player:get_pos())
+		else
+			return false, "You must be a player to run this command"
+		end
+	end
+})
 
 minetest.register_chatcommand("setblock", {
 	description = "Set block at ~ ~ ~ to reentry_nodes:solid_floor",
