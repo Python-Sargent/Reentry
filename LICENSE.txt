@@ -1,7 +1,7 @@
 License of media (textures and sounds)
 --------------------------------------
 Copyright (C) 2024 SuperStarSonic (Altius Games), Samuel Sargent <samuel@thesargents.org>
-See README.txt in each mod directory for information about other authors.
+See README.txt and/or LICENSE.txt in each mod directory for information about other authors.
 
 Attribution-ShareAlike 3.0 Unported (CC BY-SA 3.0)
 http://creativecommons.org/licenses/by-sa/3.0/

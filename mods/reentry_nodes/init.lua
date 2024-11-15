@@ -12,6 +12,12 @@ minetest.register_node("reentry_nodes:solid_wall", {
     groups = {mapnode = 1},
 })
 
+minetest.register_node("reentry_nodes:solid_interior", {
+	description = "Spaceship Interior",
+	tiles = {"reentry_nodes_solid_interior.png"},
+    groups = {mapnode = 1},
+})
+
 minetest.register_node("reentry_nodes:solid_ceiling", {
 	description = "Spaceship Ceiling",
 	tiles = {"reentry_nodes_solid_ceiling.png"},
@@ -60,6 +66,270 @@ minetest.register_node("reentry_nodes:solid_ceiling_light_off", {
     drop = "reentry_nodes:solid_ceiling_light",
 })
 
+minetest.register_node("reentry_nodes:ladder", {
+	description = "Ladder",
+	drawtype = "mesh",
+	mesh = "ladder.obj",
+	tiles = {"reentry_nodes_ladder.png"},
+	paramtype = "light",
+	paramtype2 = "4dir",
+	climbable = true,
+	selection_box = {
+		type = "fixed",
+		fixed = {-12/32, 0.5, 0.5, -16/32, -0.5, -0.5},
+	},
+	collision_box = {
+		type = "fixed",
+		fixed = {-12/32, 0.5, 0.5, -16/32, -0.5, -0.5},
+	},
+	sunlight_propagates = true,
+	groups = {mapnode = 1},
+})
+
+minetest.register_node("reentry_nodes:power_panel", {
+	description = "Power Panel",
+	drawtype = "mesh",
+	mesh = "power_panel.obj",
+	tiles = {
+		"reentry_nodes_power_panel_box.png",
+		"reentry_nodes_power_panel.png",
+		"reentry_nodes_power_panel_light.png",
+	},
+	paramtype = "light",
+	paramtype2 = "4dir",
+	selection_box = {
+		type = "fixed",
+		fixed = {0.3, 0.35, 0.5, -0.3, -0.35, 0.4},
+	},
+	collision_box = {
+		type = "fixed",
+		fixed = {0.3, 0.35, 0.5, -0.3, -0.35, 0.4},
+	},
+	sunlight_propagates = true,
+	groups = {mapnode = 1},
+	light_source = 8,
+})
+
+minetest.register_node("reentry_nodes:microscope", {
+	description = "Microscope",
+	drawtype = "mesh",
+	mesh = "microscope.obj",
+	tiles = {
+		"reentry_nodes_microscope_frame.png",
+		"reentry_nodes_microscope_base.png",
+		"reentry_nodes_microscope_arm.png",
+		"reentry_nodes_microscope_screen.png^[brighten",
+	},
+	selection_box = {
+		type = "fixed",
+		fixed = {0.25, 0.25, 0.25, -0.25, -0.5, -0.25},
+	},
+	collision_box = {
+		type = "fixed",
+		fixed = {0.25, 0.25, 0.25, -0.25, -0.5, -0.25},
+	},
+	paramtype = "light",
+	paramtype2 = "4dir",
+	sunlight_propagates = true,
+	groups = {mapnode = 1},
+})
+
+minetest.register_node("reentry_nodes:table", {
+	description = "Table",
+	drawtype = "mesh",
+	mesh = "table.obj",
+	tiles = {
+		"reentry_nodes_table.png",
+		"reentry_nodes_table_bottom.png"
+	},
+	paramtype = "light",
+	sunlight_propagates = true,
+	groups = {mapnode = 1},
+})
+
+minetest.register_node("reentry_nodes:table_top", {
+	description = "Table Top",
+	drawtype = "mesh",
+	mesh = "table_top.obj",
+	tiles = {"reentry_nodes_table.png"},
+	paramtype = "light",
+	sunlight_propagates = true,
+	groups = {mapnode = 1},
+})
+
+minetest.register_node("reentry_nodes:paper_pad", {
+	description = "Pad of Paper",
+	drawtype = "nodebox",
+	node_box = {
+		type = "fixed",
+		fixed = {0.5, -0.475, 0.5, -0.5, -0.5, -0.5}
+	},
+	tiles = {"reentry_nodes_paper_pad.png"},
+    groups = {mapnode = 1},
+})
+
+minetest.register_node("reentry_nodes:monitor_desk", {
+	description = "Desk Monitor",
+	drawtype = "mesh",
+	mesh = "monitor_desk.obj",
+	tiles = {
+		"reentry_nodes_monitor_frame.png",
+		"reentry_nodes_monitor_screen.png"
+	},
+	selection_box = {
+		type = "fixed",
+		fixed = {0.35, 0.125, 0.35, -0.35, -0.5, -0.35},
+	},
+	collision_box = {
+		type = "fixed",
+		fixed = {0.35, 0.125, 0.35, -0.35, -0.5, -0.35},
+	},
+	paramtype = "light",
+	paramtype2 = "4dir",
+	sunlight_propagates = true,
+	groups = {mapnode = 1},
+	on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
+		if reentry_systems.get_power() == "on" then
+			minetest.set_node(pos, {name="reentry_nodes:monitor_desk_starting"})
+		else
+			minetest.chat_send_player(clicker:get_player_name(), "The battery seems to have died")
+		end
+	end,
+})
+
+minetest.register_node("reentry_nodes:monitor_desk_starting", {
+	description = "Desk Monitor (Starting))",
+	drawtype = "mesh",
+	mesh = "monitor_desk.obj",
+	tiles = {
+		"reentry_nodes_monitor_frame.png",
+		"reentry_nodes_monitor_screen_2.png"
+	},
+	selection_box = {
+		type = "fixed",
+		fixed = {0.35, 0.125, 0.35, -0.35, -0.5, -0.35},
+	},
+	collision_box = {
+		type = "fixed",
+		fixed = {0.35, 0.125, 0.35, -0.35, -0.5, -0.35},
+	},
+	paramtype = "light",
+	paramtype2 = "4dir",
+	sunlight_propagates = true,
+	diggable = false,
+	groups = {mapnode = 1},
+	on_construct = function(pos)
+		local timer = minetest.get_node_timer(pos)
+		timer:start(3)
+	end,
+	on_timer = function(pos, elapsed)
+		minetest.set_node(pos, {name="reentry_nodes:monitor_desk_on"})
+	end,
+})
+
+reentry_nodes.create_monitor_formspec = function()
+	local formspec = "formspec_version[6]" ..
+	"size[10.5,11]" ..
+	"bgcolor[#111111]" ..
+	"label[0.1,0.3;Locked Session]" ..
+	"textlist[0,0.6;10.5,10.4;terminal;" .. minetest.formspec_escape("[") .. "shipmonitor@IOSRL" .. minetest.formspec_escape("]") .. "$ ./monitor.sh," .. minetest.formspec_escape("[") .. "STATUS" .. minetest.formspec_escape("]") .. " Monitor Running," .. minetest.formspec_escape("[") .. "WARN" .. minetest.formspec_escape("]") .. " Oxygen 15%: Auxilary Oxygen Required," .. minetest.formspec_escape("[") .. "WARN" .. minetest.formspec_escape("]") .. " Electricity Capacity 18% charge: Emergency Backups in use," .. minetest.formspec_escape("[") .. "ERR" .. minetest.formspec_escape("]") .. " No Radio Contact," .. minetest.formspec_escape("[") .. "ERR" .. minetest.formspec_escape("]") .. " Temperature Control: Not Running," .. minetest.formspec_escape("[") .. "ERR" .. minetest.formspec_escape("]") .. " Critical Infrastructure Disability Detetcted;1;true]" ..
+	"image_button_exit[0.3,9.7;1,1;off.png;power_off;;false;false]"
+	return formspec
+end
+
+minetest.register_on_player_receive_fields(function(player, formname, fields)
+	local form = formname:split("_")
+	if form[1] ~= "monitor" then
+		return
+	end
+	
+	local pos = vector.new(minetest.string_to_pos(form[2])) -- compile positional data passed through formname back into pos
+	
+	if fields.power_off then
+		minetest.set_node(pos, {name="reentry_nodes:monitor_desk"})
+	end
+
+	if not fields.quit then
+		minetest.show_formspec(player:get_player_name(), "monitor_" .. minetest.pos_to_string(pos, 0), reentry_nodes.create_monitor_formspec())
+	end
+end)
+
+minetest.register_node("reentry_nodes:monitor_desk_on", {
+	description = "Desk Monitor (on)",
+	drawtype = "mesh",
+	mesh = "monitor_desk.obj",
+	tiles = {
+		"reentry_nodes_monitor_frame.png",
+		"reentry_nodes_monitor_screen_on.png"
+	},
+	selection_box = {
+		type = "fixed",
+		fixed = {0.35, 0.125, 0.35, -0.35, -0.5, -0.35},
+	},
+	collision_box = {
+		type = "fixed",
+		fixed = {0.35, 0.125, 0.35, -0.35, -0.5, -0.35},
+	},
+	paramtype = "light",
+	paramtype2 = "4dir",
+	sunlight_propagates = true,
+	groups = {mapnode = 1},
+	drop = "reentry_nodes:monitor_desk",
+	on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
+		--minetest.set_node(pos, {name="reentry_nodes:monitor_desk"})
+		minetest.show_formspec(clicker:get_player_name(), "monitor_" .. minetest.pos_to_string(pos, 0), reentry_nodes.create_monitor_formspec())
+	end,
+})
+
+minetest.register_node("reentry_nodes:suitlocker", {
+	description = "Spacesuit Locker",
+	drawtype = "mesh",
+	mesh = "suitlocker.obj",
+	tiles = {
+		"reentry_nodes_character.png",
+		"reentry_nodes_suitlocker.png",
+		"",
+	},
+	selection_box = {
+		type = "fixed",
+		fixed = {0.5, 1.5, 0.5, -0.5, -0.5, -0.5},
+	},
+	use_texture_alpha = "blend",
+	paramtype = "light",
+	paramtype2 = "4dir",
+	sunlight_propagates = true,
+	groups = {mapnode = 1},
+	after_place_node = function(pos, placer, itemstack, pointed_thing)
+		if minetest.get_node(vector.offset(pos, 0, 1, 0)).name ~= "air" then
+			return false
+		end
+	end,
+	on_construct = function(pos)
+		minetest.set_node(vector.offset(pos, 0, 1, 0), {name = "reentry_nodes:suitlocker_top"})
+	end,
+	on_destruct = function(pos)
+		minetest.set_node(vector.offset(pos, 0, 1, 0), {name = "air"})
+	end,
+})
+
+minetest.register_node("reentry_nodes:suitlocker_top", {
+	description = "Suitlocker (top)",
+	drawtype = "airlike",
+	paramtype = "light",
+	sunlight_propagates = true,
+	walkable = true,
+	pointable = false,
+	diggable = false,
+	buildable_to = false,
+	floodable = false,
+	drop = "",
+	groups = {mapnode = 1, not_in_creative_inventory = 1},
+	after_place_node = function(pos, placer, itemstack, pointed_thing)
+		minetest.rotate_node(itemstack, placer, pointed_thing)
+	end,
+})
+
+
 minetest.register_node("reentry_nodes:window", {
 	description = "Window",
 	drawtype = "glasslike_framed",
@@ -68,6 +338,7 @@ minetest.register_node("reentry_nodes:window", {
 	paramtype = "light",
 	sunlight_propagates = true,
 	groups = {mapnode = 1},
+	
 })
 
 minetest.register_node("reentry_nodes:plasma", {
@@ -111,8 +382,10 @@ minetest.register_node("reentry_nodes:door_bottom", {
 		end
 	end,
 	on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
-		minetest.swap_node(pos, {name="reentry_nodes:door_bottom_open"})
-		minetest.swap_node(vector.offset(pos, 0, 1, 0), {name = "reentry_nodes:door_top_open"})
+		if reentry_systems.get_power() == "on" then
+			minetest.swap_node(pos, {name="reentry_nodes:door_bottom_open"})
+			minetest.swap_node(vector.offset(pos, 0, 1, 0), {name = "reentry_nodes:door_top_open"})
+		end
 	end,
 	on_construct = function(pos)
 		minetest.set_node(vector.offset(pos, 0, 1, 0), {name = "reentry_nodes:door_top"})
@@ -166,8 +439,10 @@ minetest.register_node("reentry_nodes:door_bottom_open", {
 		minetest.rotate_node(itemstack, placer, pointed_thing)
 	end,
 	on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
-		minetest.swap_node(pos, {name="reentry_nodes:door_bottom"})
-		minetest.swap_node(vector.offset(pos, 0, 1, 0), {name = "reentry_nodes:door_top"})
+		if reentry_systems.get_power() == "on" then
+			minetest.swap_node(pos, {name="reentry_nodes:door_bottom"})
+			minetest.swap_node(vector.offset(pos, 0, 1, 0), {name = "reentry_nodes:door_top"})
+		end
 	end,
 })
 
@@ -307,6 +582,7 @@ reentry_nodes.trigger_check = function(pos1, pos2, objtype)
             return obj
         end
     end
+	return nil
 end
 
 reentry_nodes.create_trigger_formspec = function(pos)
@@ -332,7 +608,6 @@ reentry_nodes.trigger_on_construct = function(pos)
 	reentry_nodes.vector3_to_meta(vector.new(0, 0, 0), meta, "min")
 	reentry_nodes.vector3_to_meta(vector.new(0, 0, 0), meta, "max")
 	meta:set_float("timer_delay", 0.5)
-	meta:set_float("reset_delay", 5)
 	meta:set_int("active", 0) -- used as boolean just like C
 	meta:set_int("keep_active", 0) -- ditto
 	meta:set_string("trigger", "none")
@@ -347,12 +622,12 @@ end
 
 reentry_nodes.trigger_on_timer = function(pos, elapsed)
 	local meta = minetest.get_meta(pos)
-	local posmin = vector.add(pos, reentry_nodes.meta_to_vector3(meta, "min"))
-	local posmax = vector.add(pos, reentry_nodes.meta_to_vector3(meta, "max"))
+	local posmin = vector.add(pos, reentry_nodes.meta_to_vector3(meta, "min")) or vector.new(64, 64, 64)
+	local posmax = vector.add(pos, reentry_nodes.meta_to_vector3(meta, "max")) or vector.new(-64, -64, -64)
 	local activated = reentry_nodes.trigger_check(posmin, posmax, "player")
 	if activated ~= nil and meta:get_string("trigger") ~= "none" and activated:is_player() then
 		if meta:get_int("active") == 1 then reentry_nodes.trigger_run(meta:get_string("trigger"), {pos = pos, player = activated, meta = meta, param1 = meta:get_string("parameter1"), param2 = meta:get_string("parameter2")}) end
-		if meta:get_int("keep_active") == 0 then meta:set_int("active", 0) end -- if keep_active disabled, deactivate trigger
+		if meta:get_int("keep_active") == 0 then meta:set_int("active", 0) end-- if keep_active disabled, deactivate trigger
 	end
 	return true
 end
@@ -369,7 +644,7 @@ reentry_nodes.register_trigger_node = function(def)
 			reentry_nodes.trigger_on_rightlick(...)
 		end,
 		on_timer = function(...)
-			reentry_nodes.trigger_on_timer(...)
+			return reentry_nodes.trigger_on_timer(...)
 		end,
 	})
 end
@@ -387,6 +662,55 @@ reentry_nodes.register_trigger_node({
 reentry_nodes.register_trigger_node({
 	desc = "Spaceship Ceiling Trigger",
 	type = "solid_ceiling",
+})
+
+minetest.register_node("reentry_nodes:lever", {
+	description = "Lever",
+	drawtype = "mesh",
+	mesh = "lever.obj",
+	tiles = {
+		"reentry_nodes_lever_frame.png",
+		"reentry_nodes_lever.png"
+	},
+	selection_box = {
+		type = "wallmounted",
+		wallmounted = {0.35, 0.35, 0.35, -0.35, -0.5, -0.35},
+	},
+	walkable = false,
+	paramtype = "light",
+	paramtype2 = "wallmounted",
+	place_param2 = 2,
+	sunlight_propagates = true,
+	groups = {mapnode = 1},
+	on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
+		reentry_nodes.trigger_run("lights_off", {pos = pos, player = clicker, param1 = "pos1_64", param2 = "pos2_64"})
+		minetest.set_node(pos, {name="reentry_nodes:lever_off"})
+	end,
+})
+
+minetest.register_node("reentry_nodes:lever_off", {
+	description = "Lever (off)",
+	drawtype = "mesh",
+	mesh = "lever_off.obj",
+	tiles = {
+		"reentry_nodes_lever_frame.png",
+		"reentry_nodes_lever.png"
+	},
+	selection_box = {
+		type = "wallmounted",
+		wallmounted = {0.35, 0.35, 0.35, -0.35, -0.5, -0.35},
+	},
+	walkable = false,
+	paramtype = "light",
+	paramtype2 = "wallmounted",
+	place_param2 = 2,
+	sunlight_propagates = true,
+	groups = {mapnode = 1},
+	on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
+		reentry_nodes.trigger_run("lights_on", {pos = pos, player = clicker, param1 = "pos1_64", param2 = "pos2_64"})
+		reentry_nodes.trigger_run("storyline", {pos = pos, player = clicker, param1 = "player", param2 = "lever"})
+		minetest.set_node(pos, {name="reentry_nodes:lever"})
+	end,
 })
 
 --[[
@@ -422,6 +746,7 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
 			timer:stop()
 		else
 			meta:set_int("active", 1)
+			timer:stop()
 			timer:start(meta:get_int("timer_delay"))
 		end
 	end
@@ -433,7 +758,6 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
 		end
 		meta:set_string("parameter1", fields.param1)
 		meta:set_string("parameter2", fields.param2)
-		meta:set_float("reset_delay", fields.reset_delay)
 		if fields.keep_active then
 			if fields.keep_active == "true" then
 				meta:set_int("keep_active", 1)
@@ -465,11 +789,15 @@ reentry_nodes.start_triggers = function(pos)
 		"reentry_nodes:solid_ceiling_trigger",
 	}, false)
 
+	minetest.log(type(nodepositions))
+	
     for i, pos in pairs(nodepositions) do
+		minetest.log(type(pos))
 		local meta = minetest.get_meta(pos)
         local timer = minetest.get_node_timer(pos)
+		timer:stop()
 		timer:start(meta:get_int("timer_delay"))
-		meta:set_int("keep_active", 1)
+		meta:set_int("active", 1)
     end
 end
 
@@ -478,7 +806,7 @@ minetest.register_chatcommand("start_triggers", {
 	privs = {interact=1},
 	func = function(name)
 		local player = minetest.get_player_by_name(name)
-		if player then
+		if player:is_player() then
 			reentry_nodes.start_triggers(player:get_pos())
 		else
 			return false, "You must be a player to run this command"

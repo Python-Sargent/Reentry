@@ -1,6 +1,18 @@
 reentry_systems = {}
 
+reentry_systems.power = "on"
+
+reentry_systems.set_power = function(powerstate)
+    reentry_systems.power = powerstate
+end
+
+reentry_systems.get_power = function()
+    return reentry_systems.power
+end
+
 reentry_systems.lights_off = function(pos1, pos2)
+    reentry_systems.set_power("off")
+
     local nodepositions, nodecounts = core.find_nodes_in_area(pos1, pos2, {
         "reentry_nodes:solid_floor_light",
         "reentry_nodes:solid_wall_light",
@@ -22,6 +34,8 @@ reentry_systems.lights_off = function(pos1, pos2)
 end
 
 reentry_systems.lights_on = function(pos1, pos2)
+    reentry_systems.set_power("on")
+
     local nodepositions, nodecounts = core.find_nodes_in_area(pos1, pos2, {
         "reentry_nodes:solid_floor_light_off",
         "reentry_nodes:solid_wall_light_off",
@@ -44,12 +58,10 @@ end
 
 reentry_systems.suffocate = function(player, _)
     player:set_flags({breathing=false})
-    minetest.log("suffocating " .. player:get_player_name())
 end
 
 reentry_systems.suffocate_end = function(player, _)
     player:set_flags({breathing=true})
-    minetest.log("giving air to " .. player:get_player_name())
 end
 
 reentry_systems.tick = 120
@@ -91,11 +103,43 @@ minetest.register_chatcommand("lights", {
     privs={interact=true, server=true},
 	func = function(name, param)
 		if param == "off" then
+            reentry_systems.set_power("off")
             reentry_systems.lights_off(vector.new(64, 64, 64), vector.new(-64, -64, -64))
         elseif param == "on" then
+            reentry_systems.set_power("on")
             reentry_systems.lights_on(vector.new(64, 64, 64), vector.new(-64, -64, -64))
         else
            minetest.chat_send_player(name, "Missing paramater, Usage: \n/lights on (turns lights on)\n/lights off (turns lights off)")
         end
 	end
 })
+
+minetest.register_craftitem("reentry_systems:flashlight", {
+    description = "Flashlight",
+    inventory_image = "reentry_systems_flashlight.png",
+    on_use = function(itemstack, user, pointed_thing)
+        return ItemStack("reentry_systems:flashlight_off")
+    end,
+    on_secondary_use = function(itemstack, user, pointed_thing)
+        return ItemStack("reentry_systems:flashlight_off")
+    end,
+    on_place = function(itemstack, placer, pointed_thing)
+        return ItemStack("reentry_systems:flashlight_off")
+    end,
+})
+
+minetest.register_craftitem("reentry_systems:flashlight_off", {
+    description = "Flashlight",
+    inventory_image = "reentry_systems_flashlight_off.png",
+    on_use = function(itemstack, user, pointed_thing)
+        return ItemStack("reentry_systems:flashlight")
+    end,
+    on_secondary_use = function(itemstack, user, pointed_thing)
+        return ItemStack("reentry_systems:flashlight")
+    end,
+    on_place = function(itemstack, placer, pointed_thing)
+        return ItemStack("reentry_systems:flashlight")
+    end,
+})
+
+wielded_light.register_item_light("reentry_systems:flashlight", 14, false)
