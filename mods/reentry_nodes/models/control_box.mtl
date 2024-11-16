@@ -1,0 +1,52 @@
+# Blender 4.2.1 LTS MTL File: 'control_box.blend'
+# www.blender.org
+
+newmtl accent
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd /home/samuel/.opalclient/games/Reentry/mods/reentry_nodes/textures/reentry_nodes_ladder.png
+
+newmtl buttons
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd /home/samuel/.opalclient/games/Reentry/mods/reentry_nodes/textures/reentry_nodes_control_box_buttons.png
+
+newmtl frame
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Kd /home/samuel/.opalclient/games/Reentry/mods/reentry_nodes/textures/reentry_nodes_table.png
+
+newmtl screen
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd /home/samuel/.opalclient/games/Reentry/mods/reentry_nodes/textures/texturemap.png
+
+newmtl switches
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd /home/samuel/.opalclient/games/Reentry/mods/reentry_nodes/textures/reentry_nodes_lever.png

@@ -64,8 +64,13 @@ reentry_systems.suffocate_end = function(player, _)
     player:set_flags({breathing=true})
 end
 
-reentry_systems.tick = 120
+reentry_systems.tick = 256
 reentry_systems.breath_tick = 0
+
+local function rmhud(player, handle, handle2)
+    player:hud_remove(handle)
+    player:hud_remove(handle2)
+end
 
 minetest.register_globalstep(function(dtime)
     local connected_players = minetest.get_connected_players()
@@ -78,7 +83,7 @@ minetest.register_globalstep(function(dtime)
                 player:set_breath(math.max(player:get_breath() - 1, 0))
             end
         end
-        reentry_systems.tick = 120
+        reentry_systems.tick = 256
     else
         reentry_systems.tick = reentry_systems.tick - 1
     end
@@ -95,6 +100,32 @@ minetest.register_globalstep(function(dtime)
         reentry_systems.breath_tick = 210
     else
         reentry_systems.breath_tick = reentry_systems.breath_tick - 1
+    end
+    for i, player in pairs(connected_players) do
+        if player:get_pos().y <= -50 then
+            player:set_pos({x=72,y=11,z=0}) --TODO set this when I get mapgen setup
+			player:add_player_velocity(-player:get_velocity())
+            player:set_hp(20)
+            local vignette = player:hud_add({
+                hud_elem_type = "image",
+                position  = {x = 0, y = 0},
+                offset    = {x = 0, y = 0},
+                text      = "reentry_systems_vignette.png",
+                scale     = { x = 16, y = 16},
+                alignment = { x = 1, y = 1 },
+                z_index   = -400,
+            })
+            local respawned = player:hud_add({
+                hud_elem_type = "text",
+                position      = {x = 0.5, y = 0.5}, -- pos normalized (-1 to 1)
+                offset        = {x = -216,   y = -32}, -- offset (px)
+                text          = "Returned to Airlock",
+                alignment     = {x = 1, y = 1}, -- alignment normalized (-1 to 1)
+                size         = {x = 3, y = 3}, -- scale (px)
+                number        = 0xBBAAFF, -- color (hex) using table to convert colortext to hex
+            })
+            minetest.after(3, rmhud, player, respawned, vignette)
+        end
     end
 end)
 
@@ -143,3 +174,29 @@ minetest.register_craftitem("reentry_systems:flashlight_off", {
 })
 
 wielded_light.register_item_light("reentry_systems:flashlight", 14, false)
+
+reentry_systems.ignite_engine = function(pos1, pos2)
+    local nodepositions, nodecounts = core.find_nodes_in_area(pos1, pos2, {
+        "reentry_nodes:thruster_nozzle"
+    }, false)
+
+    for i, pos in pairs(nodepositions) do
+        if minetest.get_node(vector.offset(pos, 1, 0, 0)).name == "air" then
+            minetest.set_node(vector.offset(pos, 1, 0, 0), {name="reentry_nodes:plasma"})
+            minetest.set_node(vector.offset(pos, 2, 0, 0), {name="reentry_nodes:plasma"})
+            minetest.set_node(vector.offset(pos, 3, 0, 0), {name="reentry_nodes:plasma"})
+        elseif minetest.get_node(vector.offset(pos, -1, 0, 0)).name == "air" then
+            minetest.set_node(vector.offset(pos, -1, 0, 0), {name="reentry_nodes:plasma"})
+            minetest.set_node(vector.offset(pos, -2, 0, 0), {name="reentry_nodes:plasma"})
+            minetest.set_node(vector.offset(pos, -3, 0, 0), {name="reentry_nodes:plasma"})
+        elseif minetest.get_node(vector.offset(pos, 0, 0, 1)).name == "air" then
+            minetest.set_node(vector.offset(pos, 0, 0, 1), {name="reentry_nodes:plasma"})
+            minetest.set_node(vector.offset(pos, 0, 0, 2), {name="reentry_nodes:plasma"})
+            minetest.set_node(vector.offset(pos, 0, 0, 3), {name="reentry_nodes:plasma"})
+        elseif minetest.get_node(vector.offset(pos, 0, 0, -1)).name == "air" then
+            minetest.set_node(vector.offset(pos, 0, 0, -1), {name="reentry_nodes:plasma"})
+            minetest.set_node(vector.offset(pos, 0, 0, -2), {name="reentry_nodes:plasma"})
+            minetest.set_node(vector.offset(pos, 0, 0, -3), {name="reentry_nodes:plasma"})
+        end
+    end
+end

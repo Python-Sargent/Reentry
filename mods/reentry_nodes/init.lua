@@ -4,24 +4,28 @@ minetest.register_node("reentry_nodes:solid_floor", {
 	description = "Spaceship Floor",
 	tiles = {"reentry_nodes_solid_floor.png"},
     groups = {mapnode = 1},
+	sounds = reentry_sounds.node_sound_ship_defaults(),
 })
 
 minetest.register_node("reentry_nodes:solid_wall", {
 	description = "Spaceship Wall",
 	tiles = {"reentry_nodes_solid_wall.png"},
     groups = {mapnode = 1},
+	sounds = reentry_sounds.node_sound_ship_defaults(),
 })
 
 minetest.register_node("reentry_nodes:solid_interior", {
 	description = "Spaceship Interior",
 	tiles = {"reentry_nodes_solid_interior.png"},
     groups = {mapnode = 1},
+	sounds = reentry_sounds.node_sound_ship_defaults(),
 })
 
 minetest.register_node("reentry_nodes:solid_ceiling", {
 	description = "Spaceship Ceiling",
 	tiles = {"reentry_nodes_solid_ceiling.png"},
     groups = {mapnode = 1},
+	sounds = reentry_sounds.node_sound_ship_defaults(),
 })
 
 minetest.register_node("reentry_nodes:solid_floor_light", {
@@ -29,6 +33,7 @@ minetest.register_node("reentry_nodes:solid_floor_light", {
 	tiles = {"reentry_nodes_solid_floor_light.png"},
     groups = {mapnode = 1},
     light_source = 14,
+	sounds = reentry_sounds.node_sound_ship_defaults(),
 })
 
 minetest.register_node("reentry_nodes:solid_wall_light", {
@@ -36,6 +41,7 @@ minetest.register_node("reentry_nodes:solid_wall_light", {
 	tiles = {"reentry_nodes_solid_wall_light.png"},
     groups = {mapnode = 1},
     light_source = 14,
+	sounds = reentry_sounds.node_sound_ship_defaults(),
 })
 
 minetest.register_node("reentry_nodes:solid_ceiling_light", {
@@ -43,6 +49,7 @@ minetest.register_node("reentry_nodes:solid_ceiling_light", {
 	tiles = {"reentry_nodes_solid_ceiling_light.png"},
     groups = {mapnode = 1},
     light_source = 14,
+	sounds = reentry_sounds.node_sound_ship_defaults(),
 })
 
 minetest.register_node("reentry_nodes:solid_floor_light_off", {
@@ -50,6 +57,7 @@ minetest.register_node("reentry_nodes:solid_floor_light_off", {
 	tiles = {"reentry_nodes_solid_floor_light.png"},
     groups = {mapnode = 1, not_in_creative_inventory=1},
     drop = "reentry_nodes:solid_floor_light",
+	sounds = reentry_sounds.node_sound_ship_defaults(),
 })
 
 minetest.register_node("reentry_nodes:solid_wall_light_off", {
@@ -57,6 +65,7 @@ minetest.register_node("reentry_nodes:solid_wall_light_off", {
 	tiles = {"reentry_nodes_solid_wall_light.png"},
     groups = {mapnode = 1, not_in_creative_inventory=1},
     drop = "reentry_nodes:solid_wall_light",
+	sounds = reentry_sounds.node_sound_ship_defaults(),
 })
 
 minetest.register_node("reentry_nodes:solid_ceiling_light_off", {
@@ -64,6 +73,21 @@ minetest.register_node("reentry_nodes:solid_ceiling_light_off", {
 	tiles = {"reentry_nodes_solid_ceiling_light.png"},
     groups = {mapnode = 1, not_in_creative_inventory=1},
     drop = "reentry_nodes:solid_ceiling_light",
+	sounds = reentry_sounds.node_sound_ship_defaults(),
+})
+
+minetest.register_node("reentry_nodes:thruster_nozzle", {
+	description = "Thruster Nozzle",
+	tiles = {"reentry_nodes_thruster_nozzle.png"},
+    groups = {mapnode = 1},
+	sounds = reentry_sounds.node_sound_ship_defaults(),
+})
+
+minetest.register_node("reentry_nodes:asteroid", {
+	description = "Asteroid Fragment",
+	tiles = {"reentry_nodes_asteroid.png"},
+    groups = {mapnode = 1},
+	sounds = reentry_sounds.node_sound_asteroid_defaults(),
 })
 
 minetest.register_node("reentry_nodes:ladder", {
@@ -84,6 +108,7 @@ minetest.register_node("reentry_nodes:ladder", {
 	},
 	sunlight_propagates = true,
 	groups = {mapnode = 1},
+	sounds = reentry_sounds.node_sound_metal_defaults(),
 })
 
 minetest.register_node("reentry_nodes:power_panel", {
@@ -108,6 +133,7 @@ minetest.register_node("reentry_nodes:power_panel", {
 	sunlight_propagates = true,
 	groups = {mapnode = 1},
 	light_source = 8,
+	sounds = reentry_sounds.node_sound_metal_defaults(),
 })
 
 minetest.register_node("reentry_nodes:microscope", {
@@ -132,6 +158,7 @@ minetest.register_node("reentry_nodes:microscope", {
 	paramtype2 = "4dir",
 	sunlight_propagates = true,
 	groups = {mapnode = 1},
+	sounds = reentry_sounds.node_sound_metal_defaults(),
 })
 
 minetest.register_node("reentry_nodes:table", {
@@ -145,6 +172,7 @@ minetest.register_node("reentry_nodes:table", {
 	paramtype = "light",
 	sunlight_propagates = true,
 	groups = {mapnode = 1},
+	sounds = reentry_sounds.node_sound_ship_defaults(),
 })
 
 minetest.register_node("reentry_nodes:table_top", {
@@ -155,6 +183,7 @@ minetest.register_node("reentry_nodes:table_top", {
 	paramtype = "light",
 	sunlight_propagates = true,
 	groups = {mapnode = 1},
+	sounds = reentry_sounds.node_sound_ship_defaults(),
 })
 
 minetest.register_node("reentry_nodes:paper_pad", {
@@ -166,6 +195,64 @@ minetest.register_node("reentry_nodes:paper_pad", {
 	},
 	tiles = {"reentry_nodes_paper_pad.png"},
     groups = {mapnode = 1},
+	sounds = reentry_sounds.node_sound_ship_defaults(),
+})
+
+reentry_nodes.create_control_box_formspec = function()
+	local formspec = "formspec_version[6]" ..
+	"size[8,9]" ..
+	"bgcolor[#252545]" ..
+	"image[0.1,0.4;7.8,3.8;reentry_nodes_control_box_screen_2.png]" ..
+	"image[5.1,6.1;2.4,2.6;reentry_nodes_control_box_buttons_2.png]" ..
+	"image[6.6,4.5;0.8,1.2;reentry_nodes_control_box_switches.png]" ..
+	"image_button[5.3,4.5;0.9,1.2;reentry_nodes_control_box_switches.png;switch;Main;false;false]" ..
+	"image[0.2,4.5;4.4,4.2;reentry_nodes_control_box_plug_panel.png]" ..
+	"label[0.1,0.2;Engine Control Panel]"
+	return formspec
+end
+
+minetest.register_on_player_receive_fields(function(player, formname, fields)
+	local form = formname:split("_")
+	if form[1] ~= "control" then
+		return
+	end
+	
+	local pos = vector.new(minetest.string_to_pos(form[2])) -- compile positional data passed through formname back into pos
+	
+	if fields.switch then
+		reentry_nodes.trigger_run("engine", {pos = pos, player = player, param1 = "pos1_64", param2 = "pos2_64"})
+		reentry_nodes.trigger_run("storyline", {pos = pos, player = player, param1 = "player", param2 = "engine_started"})
+	end
+
+	if not fields.quit then
+		minetest.show_formspec(player:get_player_name(), "control_" .. minetest.pos_to_string(pos, 0), reentry_nodes.create_control_box_formspec())
+	end
+end)
+
+minetest.register_node("reentry_nodes:control_box", {
+	description = "Control Box",
+	drawtype = "mesh",
+	mesh = "control_box.obj",
+	tiles = {
+		"reentry_nodes_control_box_frame.png",
+		"reentry_nodes_control_box_accent.png",
+		"reentry_nodes_control_box_buttons.png",
+		"reentry_nodes_control_box_switches.png",
+		"reentry_nodes_control_box_screen.png"
+	},
+	paramtype = "light",
+	paramtype2 = "4dir",
+	sunlight_propagates = true,
+	groups = {mapnode = 1},
+	on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
+		if reentry_systems.get_power() == "on" then
+			--reentry_nodes.trigger_run("storyline", {pos = pos, player = clicker, param1 = "player", param2 = "monitor"})
+			minetest.show_formspec(clicker:get_player_name(), "control_" .. minetest.pos_to_string(pos, 0), reentry_nodes.create_control_box_formspec())
+		else
+			minetest.chat_send_player(clicker:get_player_name(), "No Power")
+		end
+	end,
+	sounds = reentry_sounds.node_sound_metal_defaults(),
 })
 
 minetest.register_node("reentry_nodes:monitor_desk", {
@@ -190,11 +277,13 @@ minetest.register_node("reentry_nodes:monitor_desk", {
 	groups = {mapnode = 1},
 	on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
 		if reentry_systems.get_power() == "on" then
+			reentry_nodes.trigger_run("storyline", {pos = pos, player = clicker, param1 = "player", param2 = "monitor"})
 			minetest.set_node(pos, {name="reentry_nodes:monitor_desk_starting"})
 		else
 			minetest.chat_send_player(clicker:get_player_name(), "The battery seems to have died")
 		end
 	end,
+	sounds = reentry_sounds.node_sound_metal_defaults(),
 })
 
 minetest.register_node("reentry_nodes:monitor_desk_starting", {
@@ -225,6 +314,7 @@ minetest.register_node("reentry_nodes:monitor_desk_starting", {
 	on_timer = function(pos, elapsed)
 		minetest.set_node(pos, {name="reentry_nodes:monitor_desk_on"})
 	end,
+	sounds = reentry_sounds.node_sound_metal_defaults(),
 })
 
 reentry_nodes.create_monitor_formspec = function()
@@ -247,6 +337,7 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
 	
 	if fields.power_off then
 		minetest.set_node(pos, {name="reentry_nodes:monitor_desk"})
+		reentry_nodes.trigger_run("storyline", {pos = pos, player = player, param1 = "player", param2 = "monitor2"})
 	end
 
 	if not fields.quit then
@@ -279,6 +370,7 @@ minetest.register_node("reentry_nodes:monitor_desk_on", {
 		--minetest.set_node(pos, {name="reentry_nodes:monitor_desk"})
 		minetest.show_formspec(clicker:get_player_name(), "monitor_" .. minetest.pos_to_string(pos, 0), reentry_nodes.create_monitor_formspec())
 	end,
+	sounds = reentry_sounds.node_sound_metal_defaults(),
 })
 
 minetest.register_node("reentry_nodes:suitlocker", {
@@ -310,6 +402,7 @@ minetest.register_node("reentry_nodes:suitlocker", {
 	on_destruct = function(pos)
 		minetest.set_node(vector.offset(pos, 0, 1, 0), {name = "air"})
 	end,
+	sounds = reentry_sounds.node_sound_metal_defaults(),
 })
 
 minetest.register_node("reentry_nodes:suitlocker_top", {
@@ -327,6 +420,7 @@ minetest.register_node("reentry_nodes:suitlocker_top", {
 	after_place_node = function(pos, placer, itemstack, pointed_thing)
 		minetest.rotate_node(itemstack, placer, pointed_thing)
 	end,
+	sounds = reentry_sounds.node_sound_metal_defaults(),
 })
 
 
@@ -338,7 +432,7 @@ minetest.register_node("reentry_nodes:window", {
 	paramtype = "light",
 	sunlight_propagates = true,
 	groups = {mapnode = 1},
-	
+	sounds = reentry_sounds.node_sound_glass_defaults(),
 })
 
 minetest.register_node("reentry_nodes:plasma", {
@@ -393,6 +487,7 @@ minetest.register_node("reentry_nodes:door_bottom", {
 	on_destruct = function(pos)
 		minetest.set_node(vector.offset(pos, 0, 1, 0), {name = "air"})
 	end,
+	sounds = reentry_sounds.node_sound_glass_defaults(),
 })
 
 minetest.register_node("reentry_nodes:door_top", {
@@ -537,6 +632,11 @@ reentry_nodes.register_trigger("storyline", {
 	func = reentry_story.story,
 })
 
+reentry_nodes.register_trigger("engine", {
+	key = "engine",
+	func = reentry_systems.ignite_engine,
+})
+
 reentry_nodes.populate_params = function(name, params, trigger)
 	local param1 = params.param1
 	local param2 = params.param2
@@ -646,6 +746,7 @@ reentry_nodes.register_trigger_node = function(def)
 		on_timer = function(...)
 			return reentry_nodes.trigger_on_timer(...)
 		end,
+		sounds = reentry_sounds.node_sound_ship_defaults(),
 	})
 end
 
@@ -686,6 +787,7 @@ minetest.register_node("reentry_nodes:lever", {
 		reentry_nodes.trigger_run("lights_off", {pos = pos, player = clicker, param1 = "pos1_64", param2 = "pos2_64"})
 		minetest.set_node(pos, {name="reentry_nodes:lever_off"})
 	end,
+	sounds = reentry_sounds.node_sound_metal_defaults(),
 })
 
 minetest.register_node("reentry_nodes:lever_off", {
@@ -711,6 +813,7 @@ minetest.register_node("reentry_nodes:lever_off", {
 		reentry_nodes.trigger_run("storyline", {pos = pos, player = clicker, param1 = "player", param2 = "lever"})
 		minetest.set_node(pos, {name="reentry_nodes:lever"})
 	end,
+	sounds = reentry_sounds.node_sound_metal_defaults(),
 })
 
 --[[
