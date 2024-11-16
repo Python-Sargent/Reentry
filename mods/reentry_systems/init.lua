@@ -1,5 +1,7 @@
 reentry_systems = {}
 
+local modpath = minetest.get_modpath("reentry_systems")
+
 reentry_systems.power = "on"
 
 reentry_systems.set_power = function(powerstate)
@@ -10,7 +12,7 @@ reentry_systems.get_power = function()
     return reentry_systems.power
 end
 
-reentry_systems.lights_off = function(pos1, pos2)
+reentry_systems.lights_off = function(pos1, pos2, _)
     reentry_systems.set_power("off")
 
     local nodepositions, nodecounts = core.find_nodes_in_area(pos1, pos2, {
@@ -20,8 +22,6 @@ reentry_systems.lights_off = function(pos1, pos2)
     }, false)
 
     for i, pos in pairs(nodepositions) do
-        --minetest.log(i)
-        --minetest.log(pos)
         local nodename = minetest.get_node(pos).name
         if nodename == "reentry_nodes:solid_floor_light" then
             minetest.set_node(pos, {name="reentry_nodes:solid_floor_light_off"})
@@ -33,7 +33,7 @@ reentry_systems.lights_off = function(pos1, pos2)
     end
 end
 
-reentry_systems.lights_on = function(pos1, pos2)
+reentry_systems.lights_on = function(pos1, pos2, _)
     reentry_systems.set_power("on")
 
     local nodepositions, nodecounts = core.find_nodes_in_area(pos1, pos2, {
@@ -43,8 +43,6 @@ reentry_systems.lights_on = function(pos1, pos2)
     }, false)
 
     for i, pos in pairs(nodepositions) do
-        --minetest.log(i)
-        --minetest.log(pos)
         local nodename = minetest.get_node(pos).name
         if nodename == "reentry_nodes:solid_floor_light_off" then
             minetest.set_node(pos, {name="reentry_nodes:solid_floor_light"})
@@ -56,11 +54,11 @@ reentry_systems.lights_on = function(pos1, pos2)
     end
 end
 
-reentry_systems.suffocate = function(player, _)
+reentry_systems.suffocate = function(player, _, _)
     player:set_flags({breathing=false})
 end
 
-reentry_systems.suffocate_end = function(player, _)
+reentry_systems.suffocate_end = function(player, _, _)
     player:set_flags({breathing=true})
 end
 
@@ -175,7 +173,7 @@ minetest.register_craftitem("reentry_systems:flashlight_off", {
 
 wielded_light.register_item_light("reentry_systems:flashlight", 14, false)
 
-reentry_systems.ignite_engine = function(pos1, pos2)
+reentry_systems.ignite_engine = function(pos1, pos2, _)
     local nodepositions, nodecounts = core.find_nodes_in_area(pos1, pos2, {
         "reentry_nodes:thruster_nozzle"
     }, false)
@@ -200,3 +198,78 @@ reentry_systems.ignite_engine = function(pos1, pos2)
         end
     end
 end
+
+reentry_systems.place_map = function()
+    minetest.place_schematic(vector.new(19, -6, -35), modpath .. "/schematics/map1.mts", nil, nil, false)
+end
+
+reentry_systems.map_meta = {}
+
+reentry_systems.save_meta = function()
+    local nodepositions, nodecounts = core.find_nodes_in_area(vector.new(64, 64, 64), vector.new(-64, -64, -64), {
+        "reentry_nodes:solid_floor_trigger",
+        "reentry_nodes:solid_wall_trigger",
+        "reentry_nodes:solid_ceiling_trigger",
+    }, false)
+
+    for i, pos in pairs(nodepositions) do
+        local meta = minetest.get_meta(pos)
+        reentry_systems.map_meta[pos] = {
+            x1 = meta:get_float("xmin"),
+            y1 = meta:get_float("ymin"),
+            z1 = meta:get_float("zmin"),
+
+            x2 = meta:get_float("xmax"),
+            y2 = meta:get_float("ymax"),
+            z2 = meta:get_float("zmax"),
+
+            timer_delay = meta:get_float("timer_delay"),
+            active = meta:get_int("active"),
+            keep_active = meta:get_int("keep_active"),
+
+            trigger = meta:get_string("trigger"),
+            paramater1 = meta:get_string("parameter1"),
+            paramater2 = meta:get_string("parameter2")
+        }
+    end
+end
+
+reentry_systems.load_meta = function()
+    local nodepositions, nodecounts = core.find_nodes_in_area(vector.new(64, 64, 64), vector.new(-64, -64, -64), {
+        "reentry_nodes:solid_floor_trigger",
+        "reentry_nodes:solid_wall_trigger",
+        "reentry_nodes:solid_ceiling_trigger",
+    }, false)
+
+    for i, pos in pairs(nodepositions) do
+        local meta = minetest.get_meta(pos)
+        meta:set_float("xmin", reentry_systems.map_meta[pos].x1)
+        meta:set_float("ymin", reentry_systems.map_meta[pos].y1)
+        meta:set_float("zmin", reentry_systems.map_meta[pos].z1)
+
+        meta:set_float("xmax", reentry_systems.map_meta[pos].x2)
+        meta:set_float("ymax", reentry_systems.map_meta[pos].y2)
+        meta:set_float("zmax", reentry_systems.map_meta[pos].z2)
+
+        meta:set_float("timer_delay", reentry_systems.map_meta[pos].timer_delay)
+        meta:set_int("active", reentry_systems.map_meta[pos].active)
+        meta:set_int("keep_active", reentry_systems.map_meta[pos].keep_active)
+
+        meta:set_string("trigger", reentry_systems.map_meta[pos].trigger)
+        meta:set_string("parameter1", reentry_systems.map_meta[pos].parameter1)
+        meta:set_string("paramater2", reentry_systems.map_meta[pos].parameter2)
+    end
+end
+
+minetest.register_chatcommand("place_map", {
+	description = "Place the map",
+    privs={interact=true, server=true},
+	func = function(name)
+		local player = minetest.get_player_by_name(name)
+		if player then
+			reentry_systems.place_map()
+		else
+			return false, "You must be a player to run this command"
+		end
+	end
+})

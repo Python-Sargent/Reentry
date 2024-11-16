@@ -284,20 +284,21 @@ reentry_story.tp_end = function(player)
     player:set_hp(20)
 end
 
-reentry_story.end_game = function(player)
-    minetest.after(5, reentry_story.blackout, player)
-    minetest.after(5.5, reentry_story.end_text, player)
-    minetest.after(5, reentry_story.tp_end, player)
+reentry_story.end_game = function(player, pos)
+    minetest.close_formspec(player:get_player_name(), "control_" .. minetest.pos_to_string(pos, 0))
+    minetest.after(6, reentry_story.blackout, player)
+    minetest.after(6.5, reentry_story.end_text, player)
+    minetest.after(3, reentry_story.tp_end, player)
 end
 
-reentry_story.story = function(player, line)
+reentry_story.story = function(player, line, pos)
     if reentry_story.storyline[line].read == false then
         minetest.show_formspec(player:get_player_name(), "storyline", reentry_story.create_formspec(line))
         reentry_story.storyline[line].read = true
         local story = reentry_story.get_story(line)
         if story.quest ~= nil then reentry_story.set_quest(story.quest) reentry_story.update_quest() end
         if story.the_end == true then
-            reentry_story.end_game(player)
+            reentry_story.end_game(player, pos)
         end
     elseif reentry_story.storyline[line].read == nil then
         minetest.show_formspec(player:get_player_name(), "storyline", reentry_story.create_formspec(line))

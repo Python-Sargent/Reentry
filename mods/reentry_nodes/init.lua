@@ -660,7 +660,7 @@ reentry_nodes.populate_params = function(name, params, trigger)
 	else
 		p2 = param2
 	end
-	return p1, p2
+	return p1, p2, params.pos
 end
 
 reentry_nodes.trigger_run = function(name, params)
@@ -857,7 +857,7 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
 		if reentry_nodes.triggers[fields.trigger] then
 			meta:set_string("trigger", fields.trigger)
 		else
-			minetest.log(fields.trigger or type(fields.trigger))
+			minetest.log("Invalid trigger: " .. fields.trigger or type(fields.trigger))
 		end
 		meta:set_string("parameter1", fields.param1)
 		meta:set_string("parameter2", fields.param2)
@@ -891,11 +891,8 @@ reentry_nodes.start_triggers = function(pos)
 		"reentry_nodes:solid_wall_trigger",
 		"reentry_nodes:solid_ceiling_trigger",
 	}, false)
-
-	minetest.log(type(nodepositions))
 	
     for i, pos in pairs(nodepositions) do
-		minetest.log(type(pos))
 		local meta = minetest.get_meta(pos)
         local timer = minetest.get_node_timer(pos)
 		timer:stop()
@@ -903,6 +900,38 @@ reentry_nodes.start_triggers = function(pos)
 		meta:set_int("active", 1)
     end
 end
+
+reentry_nodes.create_start_formspec = function()
+	local formspec = "formspec_version[6]" ..
+		"size[16,12]" ..
+		"image[0,0;16,9.1;reentry_header.png]" ..
+		"label[0.3,8.6;Luanti Game Jam 2024]" ..
+		"button[0.2,9.3;15.6,2.5;start;Play Game]"
+	return formspec
+end
+
+minetest.register_on_player_receive_fields(function(player, formname, fields)
+	if formname ~= "start" then
+		return
+	end
+	
+	if fields.start or fields.quit then
+		player:set_pos(vector.new(44, 18, 0))
+		player:add_player_velocity(-player:get_velocity())
+		player:set_hp(20)
+		reentry_systems.lights_on(vector.new(64, 64, 64), vector.new(-64, -64, -64))
+		reentry_nodes.start_triggers(player:get_pos())
+		local inv = player:get_inventory()
+		inv:add_item("main", "reentry_systems:flashlight")
+		if minetest.is_creative_enabled == false then
+			reentry_systems.place_map()
+		end
+	end
+end)
+
+minetest.register_on_joinplayer(function(player, last_login)
+    minetest.show_formspec(player:get_player_name(), "start", reentry_nodes.create_start_formspec())
+end)
 
 minetest.register_chatcommand("start_triggers", {
 	description = "Activate all triggers",
