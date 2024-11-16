@@ -923,7 +923,8 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
 		reentry_nodes.start_triggers(player:get_pos())
 		local inv = player:get_inventory()
 		inv:add_item("main", "reentry_systems:flashlight")
-		if minetest.is_creative_enabled == false then
+		local privs = minetest.get_player_privs(player:get_player_name())
+		if privs.creative ~= true then
 			reentry_systems.place_map()
 		end
 	end
