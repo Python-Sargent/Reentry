@@ -906,7 +906,7 @@ reentry_nodes.create_start_formspec = function()
 		"size[16,12]" ..
 		"image[0,0;16,9.1;reentry_header.png]" ..
 		"label[0.3,8.6;Luanti Game Jam 2024]" ..
-		"button[0.2,9.3;15.6,2.5;start;Play Game]"
+		"button_exit[0.2,9.3;15.6,2.5;start;Play Game]"
 	return formspec
 end
 
