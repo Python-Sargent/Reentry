@@ -226,7 +226,7 @@ reentry_systems.ignite_engine = function(pos1, pos2, _)
 end
 
 reentry_systems.place_map = function()
-    minetest.place_schematic(vector.new(19, -6, -35), modpath .. "/schematics/map1.mts", nil, nil, false)
+    minetest.place_schematic(vector.new(19, -6, -35), modpath .. "/schematics/map1.mts", nil, nil, true)
 end
 
 reentry_systems.place_end = function()
@@ -235,8 +235,22 @@ end
 
 reentry_systems.map_meta = {}
 
+dofile(modpath .. "/meta.lua")
+
+reentry_systems.serialize_meta = function()
+    local serialized_meta = ""
+    for pos, meta in pairs(reentry_systems.map_meta) do
+        local nodemeta = ""
+        for key, value in pairs(reentry_systems.map_meta[pos]) do
+            nodemeta = nodemeta .. tostring(key) .. "=" .. tostring(value) .. ",\n"
+        end
+        serialized_meta = serialized_meta .. "['" .. tostring(pos) .. "'] = {\n" .. nodemeta .. "},\n"
+    end
+    minetest.log(serialized_meta)
+end
+
 reentry_systems.save_meta = function()
-    local nodepositions, nodecounts = core.find_nodes_in_area(vector.new(64, 64, 64), vector.new(-64, -64, -64), {
+    local nodepositions, nodecounts = core.find_nodes_in_area(vector.new(72, 72, 72), vector.new(-72, -72, -72), {
         "reentry_nodes:solid_floor_trigger",
         "reentry_nodes:solid_wall_trigger",
         "reentry_nodes:solid_ceiling_trigger",
@@ -244,7 +258,7 @@ reentry_systems.save_meta = function()
 
     for i, pos in pairs(nodepositions) do
         local meta = minetest.get_meta(pos)
-        reentry_systems.map_meta[pos] = {
+        reentry_systems.map_meta[minetest.pos_to_string(pos, 0)] = {
             x1 = meta:get_float("xmin"),
             y1 = meta:get_float("ymin"),
             z1 = meta:get_float("zmin"),
@@ -258,14 +272,14 @@ reentry_systems.save_meta = function()
             keep_active = meta:get_int("keep_active"),
 
             trigger = meta:get_string("trigger"),
-            paramater1 = meta:get_string("parameter1"),
-            paramater2 = meta:get_string("parameter2")
+            parameter1 = meta:get_string("parameter1"),
+            parameter2 = meta:get_string("parameter2")
         }
     end
 end
 
 reentry_systems.load_meta = function()
-    local nodepositions, nodecounts = core.find_nodes_in_area(vector.new(64, 64, 64), vector.new(-64, -64, -64), {
+    local nodepositions, nodecounts = core.find_nodes_in_area(vector.new(72, 72, 72), vector.new(-72, -72, -72), {
         "reentry_nodes:solid_floor_trigger",
         "reentry_nodes:solid_wall_trigger",
         "reentry_nodes:solid_ceiling_trigger",
@@ -273,21 +287,21 @@ reentry_systems.load_meta = function()
 
     for i, pos in pairs(nodepositions) do
         local meta = minetest.get_meta(pos)
-        meta:set_float("xmin", reentry_systems.map_meta[pos].x1)
-        meta:set_float("ymin", reentry_systems.map_meta[pos].y1)
-        meta:set_float("zmin", reentry_systems.map_meta[pos].z1)
+        meta:set_float("xmin", reentry_systems.map_meta[minetest.pos_to_string(pos, 0)].x1)
+        meta:set_float("ymin", reentry_systems.map_meta[minetest.pos_to_string(pos, 0)].y1)
+        meta:set_float("zmin", reentry_systems.map_meta[minetest.pos_to_string(pos, 0)].z1)
 
-        meta:set_float("xmax", reentry_systems.map_meta[pos].x2)
-        meta:set_float("ymax", reentry_systems.map_meta[pos].y2)
-        meta:set_float("zmax", reentry_systems.map_meta[pos].z2)
+        meta:set_float("xmax", reentry_systems.map_meta[minetest.pos_to_string(pos, 0)].x2)
+        meta:set_float("ymax", reentry_systems.map_meta[minetest.pos_to_string(pos, 0)].y2)
+        meta:set_float("zmax", reentry_systems.map_meta[minetest.pos_to_string(pos, 0)].z2)
 
-        meta:set_float("timer_delay", reentry_systems.map_meta[pos].timer_delay)
-        meta:set_int("active", reentry_systems.map_meta[pos].active)
-        meta:set_int("keep_active", reentry_systems.map_meta[pos].keep_active)
+        meta:set_float("timer_delay", reentry_systems.map_meta[minetest.pos_to_string(pos, 0)].timer_delay)
+        meta:set_int("active", reentry_systems.map_meta[minetest.pos_to_string(pos, 0)].active)
+        meta:set_int("keep_active", reentry_systems.map_meta[minetest.pos_to_string(pos, 0)].keep_active)
 
-        meta:set_string("trigger", reentry_systems.map_meta[pos].trigger)
-        meta:set_string("parameter1", reentry_systems.map_meta[pos].parameter1)
-        meta:set_string("paramater2", reentry_systems.map_meta[pos].parameter2)
+        meta:set_string("trigger", reentry_systems.map_meta[minetest.pos_to_string(pos, 0)].trigger)
+        meta:set_string("parameter1", reentry_systems.map_meta[minetest.pos_to_string(pos, 0)].parameter1)
+        meta:set_string("parameter2", reentry_systems.map_meta[minetest.pos_to_string(pos, 0)].parameter2)
     end
 end
 
@@ -301,5 +315,20 @@ minetest.register_chatcommand("place_map", {
 		else
 			return false, "You must be a player to run this command"
 		end
+	end
+})
+
+minetest.register_chatcommand("meta", {
+	description = "Map Meta control",
+    privs={interact=true, server=true},
+	func = function(name, params)
+		local player = minetest.get_player_by_name(name)
+        if params == "serialize" or params == "sz" then
+		    reentry_systems.serialize_meta()
+        elseif params == "save" or params == "sv" then
+            reentry_systems.save_meta()
+        elseif params == "load" or params == "ld" then
+            reentry_systems.load_meta()
+        end
 	end
 })

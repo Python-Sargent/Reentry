@@ -101,8 +101,8 @@ end
 reentry_story.storyline = {
     ["intro"] = {title = "Wake up!", text = {
         "You wake up with a slight bump on your head. What happened? Why am I wearing my spacesuit?",
-        "Youd can't remeber why you are sitting here above the control room" .. minetest.formspec_escape(","),
-        "Or even why you are here at all" .. minetest.formspec_escape(",") .. " your memory slowly comes back.",
+        "You can't remeber why you are sitting here above the control room" .. minetest.formspec_escape(","),
+        "Or even why you are here at all" .. minetest.formspec_escape(",") .. " as you stand breathing heavily your memory slowly comes back.",
         "I was up here keeping watch over the systems" .. minetest.formspec_escape(",") .. " there had been a field of asteroids detected",
         "But the ship navigated through unharmed" .. minetest.formspec_escape(",") .. " It's oddly silent too.",
     }, quest = "what_happened", read = nil},
@@ -201,7 +201,7 @@ reentry_story.storyline = {
     }, read = nil},
 
     ["thruster"] = {title = "It's Not On.", text = {
-        "Yes, it's definitely not on. That's strange. It's should be on by now.",
+        "Yes" .. minetest.formspec_escape(",") .. " it's definitely not on. That's strange. It's should be on by now.",
         "I wonder if the asteroid broke it?"
     }, quest = "restart_engine", read = nil},
 
