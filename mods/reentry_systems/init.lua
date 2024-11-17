@@ -173,6 +173,28 @@ minetest.register_craftitem("reentry_systems:flashlight_off", {
 
 wielded_light.register_item_light("reentry_systems:flashlight", 14, false)
 
+reentry_systems.create_engine_particlespawner = function(pos, dir)
+    local spawner = {
+        amount = 30,
+        time = 0,
+        texture = "reentry_systems_engine_particle.png",
+        animation = {},
+        -- Optional, specifies how to animate the particles' texture
+        -- v5.6.0 and later: set length to -1 to synchronize the length
+        -- of the animation with the expiration time of individual particles.
+        -- (-2 causes the animation to be played twice, and so on)
+        glow = 14,
+        maxpos = vector.add(pos, dir),
+        minpos = vector.offset(pos, -0.5, -0.5, -0.5),
+        pos = {
+            min = vector.offset(pos, 0.5, 0.5, 0.5),
+            max = vector.offset(pos, -0.5, -0.5, -0.5),
+            bias = 0,
+        },
+    }
+    
+end
+
 reentry_systems.ignite_engine = function(pos1, pos2, _)
     local nodepositions, nodecounts = core.find_nodes_in_area(pos1, pos2, {
         "reentry_nodes:thruster_nozzle"
@@ -180,18 +202,22 @@ reentry_systems.ignite_engine = function(pos1, pos2, _)
 
     for i, pos in pairs(nodepositions) do
         if minetest.get_node(vector.offset(pos, 1, 0, 0)).name == "air" then
+            minetest.add_particlespawner(reentry_systems.create_engine_particlespawner(pos, vector.new(6, 0, 0)))
             minetest.set_node(vector.offset(pos, 1, 0, 0), {name="reentry_nodes:plasma"})
             minetest.set_node(vector.offset(pos, 2, 0, 0), {name="reentry_nodes:plasma"})
             minetest.set_node(vector.offset(pos, 3, 0, 0), {name="reentry_nodes:plasma"})
         elseif minetest.get_node(vector.offset(pos, -1, 0, 0)).name == "air" then
+            minetest.add_particlespawner(reentry_systems.create_engine_particlespawner(pos, vector.new(-6, 0, 0)))
             minetest.set_node(vector.offset(pos, -1, 0, 0), {name="reentry_nodes:plasma"})
             minetest.set_node(vector.offset(pos, -2, 0, 0), {name="reentry_nodes:plasma"})
             minetest.set_node(vector.offset(pos, -3, 0, 0), {name="reentry_nodes:plasma"})
         elseif minetest.get_node(vector.offset(pos, 0, 0, 1)).name == "air" then
+            minetest.add_particlespawner(reentry_systems.create_engine_particlespawner(pos, vector.new(0, 0, 6)))
             minetest.set_node(vector.offset(pos, 0, 0, 1), {name="reentry_nodes:plasma"})
             minetest.set_node(vector.offset(pos, 0, 0, 2), {name="reentry_nodes:plasma"})
             minetest.set_node(vector.offset(pos, 0, 0, 3), {name="reentry_nodes:plasma"})
         elseif minetest.get_node(vector.offset(pos, 0, 0, -1)).name == "air" then
+            minetest.add_particlespawner(reentry_systems.create_engine_particlespawner(pos, vector.new(0, 0, -6)))
             minetest.set_node(vector.offset(pos, 0, 0, -1), {name="reentry_nodes:plasma"})
             minetest.set_node(vector.offset(pos, 0, 0, -2), {name="reentry_nodes:plasma"})
             minetest.set_node(vector.offset(pos, 0, 0, -3), {name="reentry_nodes:plasma"})
@@ -201,6 +227,10 @@ end
 
 reentry_systems.place_map = function()
     minetest.place_schematic(vector.new(19, -6, -35), modpath .. "/schematics/map1.mts", nil, nil, false)
+end
+
+reentry_systems.place_end = function()
+    minetest.place_schematic(vector.new(9996, 9999, 9996), modpath .. "/schematics/end.mts", nil, nil, true)
 end
 
 reentry_systems.map_meta = {}

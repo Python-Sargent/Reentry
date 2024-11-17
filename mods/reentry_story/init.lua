@@ -284,11 +284,19 @@ reentry_story.tp_end = function(player)
     player:set_hp(20)
 end
 
+reentry_story.tp_endscreen = function(player)
+    player:set_pos(vector.new(1000, 1002, 1000))
+    player:add_player_velocity(-player:get_velocity())
+    player:set_hp(20)
+    reentry_systems.place_end()
+end
+
 reentry_story.end_game = function(player, pos)
     minetest.close_formspec(player:get_player_name(), "control_" .. minetest.pos_to_string(pos, 0))
-    minetest.after(6, reentry_story.blackout, player)
-    minetest.after(6.5, reentry_story.end_text, player)
-    minetest.after(3, reentry_story.tp_end, player)
+    minetest.after(10, reentry_story.blackout, player)
+    minetest.after(10.5, reentry_story.end_text, player)
+    minetest.after(6, reentry_story.tp_endscreen, player)
+    minetest.after(0, reentry_story.tp_end, player)
 end
 
 reentry_story.story = function(player, line, pos)

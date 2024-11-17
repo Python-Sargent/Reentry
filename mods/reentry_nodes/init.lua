@@ -198,6 +198,19 @@ minetest.register_node("reentry_nodes:paper_pad", {
 	sounds = reentry_sounds.node_sound_ship_defaults(),
 })
 
+minetest.register_node("reentry_nodes:end_plaque", {
+	description = "End Plaque",
+	drawtype = "nodebox",
+	node_box = {
+		type = "wallmounted",
+		wallmounted = {0.5, -0.475, 0.5, -0.5, -0.5, -0.5}
+	},
+	paramtype2 = "wallmounted",
+	tiles = {"reentry_nodes_endscreen.png"},
+    groups = {mapnode = 1},
+	sounds = reentry_sounds.node_sound_ship_defaults(),
+})
+
 reentry_nodes.create_control_box_formspec = function()
 	local formspec = "formspec_version[6]" ..
 	"size[8,9]" ..
@@ -910,23 +923,29 @@ reentry_nodes.create_start_formspec = function()
 	return formspec
 end
 
+
+reentry_nodes.start_game = function(player)
+	player:set_pos(vector.new(44, 18, 0))
+	player:add_player_velocity(-player:get_velocity())
+	player:set_hp(20)
+	reentry_systems.lights_on(vector.new(64, 64, 64), vector.new(-64, -64, -64))
+	reentry_nodes.start_triggers(player:get_pos())
+	local inv = player:get_inventory()
+	inv:add_item("main", "reentry_systems:flashlight_off")
+	local privs = minetest.get_player_privs(player:get_player_name())
+	if privs.creative ~= true then
+		reentry_systems.place_map() -- for mapmaking
+		reentry_systems.place_end()
+	end
+end
+
 minetest.register_on_player_receive_fields(function(player, formname, fields)
 	if formname ~= "start" then
 		return
 	end
 	
 	if fields.start or fields.quit then
-		player:set_pos(vector.new(44, 18, 0))
-		player:add_player_velocity(-player:get_velocity())
-		player:set_hp(20)
-		reentry_systems.lights_on(vector.new(64, 64, 64), vector.new(-64, -64, -64))
-		reentry_nodes.start_triggers(player:get_pos())
-		local inv = player:get_inventory()
-		inv:add_item("main", "reentry_systems:flashlight")
-		local privs = minetest.get_player_privs(player:get_player_name())
-		if privs.creative ~= true then
-			reentry_systems.place_map()
-		end
+		reentry_nodes.start_game(player)
 	end
 end)
 
