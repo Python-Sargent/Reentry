@@ -934,6 +934,7 @@ reentry_nodes.start_game = function(player)
 	inv:add_item("main", "reentry_systems:flashlight_off")
 	local privs = minetest.get_player_privs(player:get_player_name())
 	if privs.creative ~= true then
+		reentry_systems.load_meta()
 		reentry_systems.place_map() -- for mapmaking
 		reentry_systems.place_end()
 	end
