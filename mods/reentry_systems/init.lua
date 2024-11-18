@@ -102,7 +102,7 @@ minetest.register_globalstep(function(dtime)
     for i, player in pairs(connected_players) do
         if player:get_pos().y <= -50 then
             player:set_pos({x=72,y=11,z=0}) --TODO set this when I get mapgen setup
-			player:add_player_velocity(-player:get_velocity())
+			player:add_velocity(-player:get_velocity())
             player:set_hp(20)
             local vignette = player:hud_add({
                 hud_elem_type = "image",
@@ -203,25 +203,26 @@ reentry_systems.ignite_engine = function(pos1, pos2, _)
     for i, pos in pairs(nodepositions) do
         if minetest.get_node(vector.offset(pos, 1, 0, 0)).name == "air" then
             minetest.add_particlespawner(reentry_systems.create_engine_particlespawner(pos, vector.new(6, 0, 0)))
-            minetest.set_node(vector.offset(pos, 1, 0, 0), {name="reentry_nodes:plasma"})
-            minetest.set_node(vector.offset(pos, 2, 0, 0), {name="reentry_nodes:plasma"})
-            minetest.set_node(vector.offset(pos, 3, 0, 0), {name="reentry_nodes:plasma"})
+            for i=1,6,1 do
+                minetest.after(i, minetest.set_node, vector.offset(pos, i, 0, 0), {name="reentry_nodes:plasma"})
+            end
         elseif minetest.get_node(vector.offset(pos, -1, 0, 0)).name == "air" then
             minetest.add_particlespawner(reentry_systems.create_engine_particlespawner(pos, vector.new(-6, 0, 0)))
-            minetest.set_node(vector.offset(pos, -1, 0, 0), {name="reentry_nodes:plasma"})
-            minetest.set_node(vector.offset(pos, -2, 0, 0), {name="reentry_nodes:plasma"})
-            minetest.set_node(vector.offset(pos, -3, 0, 0), {name="reentry_nodes:plasma"})
+            for i=1,6,1 do
+                minetest.after(i, minetest.set_node, vector.offset(pos, -i, 0, 0), {name="reentry_nodes:plasma"})
+            end
         elseif minetest.get_node(vector.offset(pos, 0, 0, 1)).name == "air" then
             minetest.add_particlespawner(reentry_systems.create_engine_particlespawner(pos, vector.new(0, 0, 6)))
-            minetest.set_node(vector.offset(pos, 0, 0, 1), {name="reentry_nodes:plasma"})
-            minetest.set_node(vector.offset(pos, 0, 0, 2), {name="reentry_nodes:plasma"})
-            minetest.set_node(vector.offset(pos, 0, 0, 3), {name="reentry_nodes:plasma"})
+            for i=1,6,1 do
+                minetest.after(i, minetest.set_node, vector.offset(pos, 0, 0, i), {name="reentry_nodes:plasma"})
+            end
         elseif minetest.get_node(vector.offset(pos, 0, 0, -1)).name == "air" then
             minetest.add_particlespawner(reentry_systems.create_engine_particlespawner(pos, vector.new(0, 0, -6)))
-            minetest.set_node(vector.offset(pos, 0, 0, -1), {name="reentry_nodes:plasma"})
-            minetest.set_node(vector.offset(pos, 0, 0, -2), {name="reentry_nodes:plasma"})
-            minetest.set_node(vector.offset(pos, 0, 0, -3), {name="reentry_nodes:plasma"})
+            for i=1,6,1 do
+                minetest.after(i, minetest.set_node, vector.offset(pos, 0, 0, -i), {name="reentry_nodes:plasma"})
+            end
         end
+        minetest.sound_play({name = "reentry_systems_thruster", gain = 0.3, pitch = 1}, true)
     end
 end
 

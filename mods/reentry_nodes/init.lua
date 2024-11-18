@@ -233,7 +233,7 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
 	local pos = vector.new(minetest.string_to_pos(form[2])) -- compile positional data passed through formname back into pos
 	
 	if fields.switch then
-		reentry_nodes.trigger_run("engine", {pos = pos, player = player, param1 = "pos1_64", param2 = "pos2_64"})
+		minetest.after(2, reentry_nodes.trigger_run, "engine", {pos = pos, player = player, param1 = "pos1_64", param2 = "pos2_64"})
 		reentry_nodes.trigger_run("storyline", {pos = pos, player = player, param1 = "player", param2 = "engine_started"})
 	end
 
