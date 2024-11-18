@@ -218,7 +218,7 @@ reentry_nodes.create_control_box_formspec = function()
 	"image[0.1,0.4;7.8,3.8;reentry_nodes_control_box_screen_2.png]" ..
 	"image[5.1,6.1;2.4,2.6;reentry_nodes_control_box_buttons_2.png]" ..
 	"image[6.6,4.5;0.8,1.2;reentry_nodes_control_box_switches.png]" ..
-	"image_button[5.3,4.5;0.9,1.2;reentry_nodes_control_box_switches.png;switch;Main;false;false]" ..
+	"image_button_exit[5.3,4.5;0.9,1.2;reentry_nodes_control_box_switches.png;switch;Main;false;false]" ..
 	"image[0.2,4.5;4.4,4.2;reentry_nodes_control_box_plug_panel.png]" ..
 	"label[0.1,0.2;Engine Control Panel]"
 	return formspec
@@ -899,7 +899,7 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
 end)
 
 reentry_nodes.start_triggers = function(pos)
-	local nodepositions, nodecounts = core.find_nodes_in_area(vector.offset(pos, 64, 64, 64), vector.offset(pos, -64, -64, -64), {
+	local nodepositions, nodecounts = core.find_nodes_in_area(vector.offset(pos, 72, 72, 72), vector.offset(pos, -72, -72, -72), {
 		"reentry_nodes:solid_floor_trigger",
 		"reentry_nodes:solid_wall_trigger",
 		"reentry_nodes:solid_ceiling_trigger",
@@ -928,16 +928,16 @@ reentry_nodes.start_game = function(player)
 	player:set_pos(vector.new(44, 18, 0))
 	player:add_player_velocity(-player:get_velocity())
 	player:set_hp(20)
-	reentry_systems.lights_on(vector.new(64, 64, 64), vector.new(-64, -64, -64))
-	reentry_nodes.start_triggers(player:get_pos())
 	local inv = player:get_inventory()
 	inv:add_item("main", "reentry_systems:flashlight_off")
 	local privs = minetest.get_player_privs(player:get_player_name())
 	if privs.creative ~= true then
-		reentry_systems.load_meta()
-		reentry_systems.place_map() -- for mapmaking
+		reentry_systems.place_map()
 		reentry_systems.place_end()
+		reentry_systems.load_meta()
 	end
+	reentry_systems.lights_on(vector.new(64, 64, 64), vector.new(-64, -64, -64))
+	minetest.after(0.1, reentry_nodes.start_triggers, player:get_pos()) -- you can't always count on the player being at 0 0 0 and tping instantly
 end
 
 minetest.register_on_player_receive_fields(function(player, formname, fields)

@@ -173,12 +173,12 @@ minetest.register_craftitem("reentry_systems:flashlight_off", {
 
 wielded_light.register_item_light("reentry_systems:flashlight", 14, false)
 
-reentry_systems.create_engine_particlespawner = function(pos, dir)
+reentry_systems.create_engine_particlespawner = function(pos, dir) -- doesn't work yet :skull:
     local spawner = {
         amount = 30,
         time = 0,
         texture = "reentry_systems_engine_particle.png",
-        animation = {},
+        --animation = {},
         -- Optional, specifies how to animate the particles' texture
         -- v5.6.0 and later: set length to -1 to synchronize the length
         -- of the animation with the expiration time of individual particles.
@@ -204,25 +204,25 @@ reentry_systems.ignite_engine = function(pos1, pos2, _)
         if minetest.get_node(vector.offset(pos, 1, 0, 0)).name == "air" then
             minetest.add_particlespawner(reentry_systems.create_engine_particlespawner(pos, vector.new(6, 0, 0)))
             for i=1,6,1 do
-                minetest.after(i, minetest.set_node, vector.offset(pos, i, 0, 0), {name="reentry_nodes:plasma"})
+                minetest.after(i/4, minetest.set_node, vector.offset(pos, i, 0, 0), {name="reentry_nodes:plasma"})
             end
         elseif minetest.get_node(vector.offset(pos, -1, 0, 0)).name == "air" then
             minetest.add_particlespawner(reentry_systems.create_engine_particlespawner(pos, vector.new(-6, 0, 0)))
             for i=1,6,1 do
-                minetest.after(i, minetest.set_node, vector.offset(pos, -i, 0, 0), {name="reentry_nodes:plasma"})
+                minetest.after(i/4, minetest.set_node, vector.offset(pos, -i, 0, 0), {name="reentry_nodes:plasma"})
             end
         elseif minetest.get_node(vector.offset(pos, 0, 0, 1)).name == "air" then
             minetest.add_particlespawner(reentry_systems.create_engine_particlespawner(pos, vector.new(0, 0, 6)))
             for i=1,6,1 do
-                minetest.after(i, minetest.set_node, vector.offset(pos, 0, 0, i), {name="reentry_nodes:plasma"})
+                minetest.after(i/4, minetest.set_node, vector.offset(pos, 0, 0, i), {name="reentry_nodes:plasma"})
             end
         elseif minetest.get_node(vector.offset(pos, 0, 0, -1)).name == "air" then
             minetest.add_particlespawner(reentry_systems.create_engine_particlespawner(pos, vector.new(0, 0, -6)))
             for i=1,6,1 do
-                minetest.after(i, minetest.set_node, vector.offset(pos, 0, 0, -i), {name="reentry_nodes:plasma"})
+                minetest.after(i/4, minetest.set_node, vector.offset(pos, 0, 0, -i), {name="reentry_nodes:plasma"})
             end
         end
-        minetest.sound_play({name = "reentry_systems_thruster", gain = 0.3, pitch = 1}, true)
+        minetest.sound_play({name = "reentry_systems_thruster", gain = 0.3, pitch = 1}, true) -- for some reason ephemeral sounds are loud or smth?
     end
 end
 
@@ -245,7 +245,7 @@ reentry_systems.serialize_meta = function()
         for key, value in pairs(reentry_systems.map_meta[pos]) do
             nodemeta = nodemeta .. tostring(key) .. "=" .. tostring(value) .. ",\n"
         end
-        serialized_meta = serialized_meta .. "['" .. tostring(pos) .. "'] = {\n" .. nodemeta .. "},\n"
+        serialized_meta = serialized_meta .. '["' .. tostring(pos) .. '"] = {\n' .. nodemeta .. "},\n"
     end
     minetest.log(serialized_meta)
 end
