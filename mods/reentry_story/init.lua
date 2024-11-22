@@ -287,10 +287,10 @@ reentry_story.tp_end = function(player)
 end
 
 reentry_story.tp_endscreen = function(player)
-    player:set_pos(vector.new(1000, 1002, 1000))
+    player:set_pos(vector.new(1000, 1003, 1000))
     player:add_velocity(-player:get_velocity())
     player:set_hp(20)
-    reentry_systems.place_end()
+    minetest.after(0.2, reentry_systems.place_end)
 end
 
 reentry_story.end_game = function(player, pos)
